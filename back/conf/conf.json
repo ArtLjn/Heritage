@@ -1,0 +1,36 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": "8080"
+  },
+  "commonRequest": {
+    "user": "0x29e2db8ad37fb85a2466db8517d380dc98c2d51c",
+    "contractName": "Heritage",
+    "contractAddress": "0x34d59ea8a51d613226137ea5f1f689c875fb4d31",
+    "contractAbi": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"categoryList\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"Inheritor\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"InheritorImg\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"project\",\"type\":\"string\"},{\"internalType\":\"enum data.CateGory\",\"name\":\"category\",\"type\":\"uint8\"},{\"internalType\":\"enum data.Level\",\"name\":\"rank\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"}],\"name\":\"createHeritageInheritor\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"enum data.CateGory\",\"name\":\"category\",\"type\":\"uint8\"},{\"internalType\":\"enum data.Level\",\"name\":\"rank\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"}],\"name\":\"createHeritageProject\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCateGoryList\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getHeritageInheritorList\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"Inheritor\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"InheritorImg\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"project\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"creationTime\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"}],\"internalType\":\"struct data.HeritageInheritor[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getHeritageProject\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"}],\"internalType\":\"struct data.HeritageProject[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRankList\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"heritageInheritorList\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"Inheritor\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"InheritorImg\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"project\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"creationTime\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"heritageProjectList\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"name\":\"queryHeritageInheritor\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"Inheritor\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"InheritorImg\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"project\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"creationTime\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"name\":\"queryHeritageProject\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"number\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"category\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"rank\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"locate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"details\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"rankList\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+    "url": "http://localhost:5002/WeBASE-Front/trans/handle",
+    "parsePut": "http://127.0.0.1:5002/WeBASE-Front/tool/decode"
+  },
+  "database": {
+    "host": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "123456",
+    "dbName": "heritage"
+  },
+  "redis": {
+    "addr": "127.0.0.1:6379",
+    "password":"",
+    "db": 0
+  },
+  "rabbitmq":{
+    "url": "amqp://root:123456@localhost:5672/heritage",
+    "exchange": "heritage_exchange",
+    "queue": [
+      "apply_inheritor_queue",
+      "apply_project_queue",
+      "pass_inheritor_queue",
+      "pass_project_queue"
+    ]
+  }
+}

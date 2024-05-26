@@ -1,0 +1,4 @@
+.idea
+front/node_modules
+.DS_Store
+back/log
