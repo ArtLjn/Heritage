@@ -40,7 +40,7 @@
 </template>
 <script>
 import router from "@/router";
-import {Login} from "@/api/auth";
+import {Login, VerifyToken} from "@/api/auth";
 
 export default {
   data() {
@@ -50,6 +50,9 @@ export default {
       showLogin: true,
       showRegister:false
     };
+  },
+  mounted() {
+    VerifyToken();
   },
   methods:{
     onRegister() {
@@ -80,6 +83,8 @@ export default {
         } else {
           this.$message.error(res.data.message)
         }
+      }).catch((err) => {
+        this.$message.error(err)
       })
     }
   }

@@ -17,6 +17,7 @@ type AccountRepo interface {
 	InitAccount()
 	Login(login model.AccountLogin) (data []interface{}, err error)
 	LogOut(key string)
+	VerifyToken(key string) error
 }
 
 type AccountService struct {
@@ -44,8 +45,23 @@ func (a *AccountService) Login(ctx *gin.Context) {
 }
 
 func (a *AccountService) LogOut(ctx *gin.Context) {
-	key := ctx.GetString("city")
+	key := ctx.Query("city")
 	a.repo.LogOut(key)
+	a.r.SetCode(200).SetMsg("success").SetData(nil).Build(ctx)
+	return
+}
+
+func (a *AccountService) VerifyToken(ctx *gin.Context) {
+	token := ctx.GetHeader("Authorization")
+	if token == "" {
+		a.r.SetCode(400).SetMsg("token失效").SetData(nil).Build(ctx)
+		return
+	}
+	err := a.repo.VerifyToken(token)
+	if err != nil {
+		a.r.SetCode(400).SetMsg("token失效").SetData(nil).Build(ctx)
+		return
+	}
 	a.r.SetCode(200).SetMsg("success").SetData(nil).Build(ctx)
 	return
 }

@@ -5,12 +5,12 @@
 </template>
 
 <script>
-import router from '@/router';
+import {LogOut} from "@/api/auth";
 
 export default {
     methods:{
         logout() {
-            router.push('/admin');
+            LogOut();
         }
     }
 }

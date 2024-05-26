@@ -27,6 +27,10 @@ type accountRepo struct {
 	t    util.TokenManager
 }
 
+func (a accountRepo) VerifyToken(key string) error {
+	return a.t.VerifyToken(key)
+}
+
 func (a accountRepo) LogOut(key string) {
 	a.t.LogOutToken(key)
 }

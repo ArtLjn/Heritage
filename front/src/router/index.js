@@ -28,6 +28,11 @@ const router = createRouter({
           component:()=>import("../views/oneView.vue")
         },
         {
+          path:"/adminHome/apply",
+          name:"apply",
+          component:()=>import("../views/apply.vue")
+        },
+        {
           path:"/adminHome/browse",
           name:"browse",
           component:()=>import("../views/Browse.vue")
@@ -41,5 +46,19 @@ const router = createRouter({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  // 检查是否访问的是 adminHome 及其子目录
+  if (to.path.startsWith("/adminHome")) {
+    // 如果用户已经认证，即存在 token
+    if (localStorage.getItem("token")) {
+      next(); // 允许访问
+    } else {
+      next("/admin"); // 如果未认证，重定向到登录页面
+    }
+  } else {
+    next(); // 对于其他路由，不做认证检查
+  }
+});
 
 export default router

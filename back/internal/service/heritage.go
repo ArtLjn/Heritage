@@ -92,7 +92,7 @@ func (s *HeritageService) GetLevel(ctx *gin.Context) {
 	s.r.SetCode(200).SetData(s.repo.GetLevel()).Build(ctx)
 }
 
-func (s *HeritageService) QueryHeritageInheritor(ctx *gin.Context) {
+func (s *HeritageService) QueryHeritageTask(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	size, _ := strconv.Atoi(ctx.Query("size"))
 	raw, _ := strconv.Atoi(ctx.Query("raw"))

@@ -11,6 +11,7 @@ export default {
 <template>
   <div class="link-box">
     <router-link to="/adminHome/index" class="link">首页</router-link>
+    <router-link to="/adminHome/apply" class="link">申请</router-link>
     <router-link to="/adminHome/browse" class="link">Browse</router-link>
     <router-link to="/adminHome/order" class="link">Order</router-link>
   </div>

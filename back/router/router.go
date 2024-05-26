@@ -28,11 +28,12 @@ func InitRouter(r *gin.Engine, heritageService *service.HeritageService,
 		heritageGroup.GET("/queryHeritageProject", heritageService.QueryAllHeritageProject)
 		heritageGroup.GET("/getCategory", heritageService.GetCateGory)
 		heritageGroup.GET("/getLevel", heritageService.GetLevel)
-		heritageGroup.GET("/getCreateHeritageInheritorTask", heritageService.QueryHeritageInheritor)
+		heritageGroup.GET("/queryHeritageTask", heritageService.QueryHeritageTask)
 	}
 	accGroup := group.Group("/account")
 	{
 		accGroup.POST("/login", accountService.Login)
 		accGroup.GET("/logout", accountService.LogOut)
+		accGroup.GET("/verifyToken", accountService.VerifyToken)
 	}
 }
