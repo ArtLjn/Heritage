@@ -12,11 +12,13 @@ import (
 	"back/internal/data"
 	"back/internal/service"
 	"back/router"
+	"back/util"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -41,13 +43,14 @@ func wireApp(c *conf.Conf, r *gin.Engine) {
 	dataData := data.NewData(c)
 	heritageRepo := data.NewHeritageRepo(dataData)
 	heritageService := service.NewHeritageService(heritageRepo)
+	accountRepo := data.NewAccountRepo(dataData)
 	go heritageRepo.InitHeritageInheritor()
 	go heritageRepo.InitHeritageProject()
 	go heritageRepo.ReceiveHeritageInheritor()
 	go heritageRepo.ReceiveHeritageProject()
-	accountRepo := data.NewAccountRepo(dataData)
-	// 构建账户数据
-	go accountRepo.InitAccount()
+	go accountRepo.InitAccount() // 构建账户数据
 	accountService := service.NewAccountService(accountRepo)
+	r.StaticFS("/img", http.Dir(c.UploadRepo.UploadPath))
+	util.NewUploadRepo(c.UploadRepo.UploadPath, c.UploadRepo.Domain, c.UploadRepo.MaxSize)
 	router.InitRouter(r, heritageService, accountService)
 }

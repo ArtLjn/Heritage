@@ -34,4 +34,6 @@ type Conf struct {
 		Exchange string   `json:"exchange"`
 		Queue    []string `json:"queue"`
 	}
+
+	util.UploadRepo `json:"upload"`
 }

@@ -9,6 +9,7 @@ package router
 
 import (
 	"back/internal/service"
+	"back/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,7 @@ func InitRouter(r *gin.Engine, heritageService *service.HeritageService,
 		})
 	})
 	group := r.Group("/api")
+	group.POST("/upload", util.GinUploadImg)
 	heritageGroup := group.Group("/heritage")
 	{
 		heritageGroup.POST("/CreateHeritageInheritor", heritageService.CreateHeritageInheritor)
