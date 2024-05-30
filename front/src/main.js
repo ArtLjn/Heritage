@@ -5,4 +5,6 @@ import 'element-plus/theme-chalk/index.css'
 import router from "@/router";
 
 const app = createApp(App)
-app.use(ElementPlus).use(router).mount('#app')
+app.use(ElementPlus)
+    .use(router)
+    .mount('#app')

@@ -1,0 +1,52 @@
+.header{
+    height:200px;
+    padding: 0;
+}
+.search{
+    width: 300px;
+    height: 30px;
+    border-radius: 20px;
+    border: 1px solid #eee7d2;
+    padding: 0 20px;
+    font-size: 16px;
+}
+.top-header {
+    height: 140px;
+    display: flex; /* 启用Flexbox布局 */
+    align-items: center; /* 垂直居中所有子元素 */
+    justify-content: space-between; /* 子元素之间的空间平均分布 */
+    flex-wrap: wrap; /* 如果需要，子元素可以换行显示 */
+}
+.bottom-header {
+    height: 60px;
+    background-color: #eee7d2;
+    display: flex; /* 使用Flexbox布局 */
+    justify-content: center; /* 水平居中子元素 */
+    align-items: center; /* 垂直居中子元素 */
+}
+.el-link {
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0 10px;
+    text-decoration: none;
+}
+.title{
+    font-size: 40px;
+    font-weight: 600;
+    text-align: center;
+    padding: 20px 0;
+}
+.footer{
+    height: 100px;
+    background-color: #eee7d2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+.main{
+    height: 100%;
+    min-height: 100vh;
+}

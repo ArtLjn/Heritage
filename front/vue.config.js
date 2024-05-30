@@ -9,11 +9,6 @@ module.exports = defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        ws: true,
-        changeOrigin: true, //是否跨域
-        pathRewrite: {
-          '^/api': ''
-        }
       }
     },
     historyApiFallback: true //增加这个选项

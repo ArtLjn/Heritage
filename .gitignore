@@ -2,3 +2,5 @@
 front/node_modules
 .DS_Store
 back/log
+back/static
+.gitignore

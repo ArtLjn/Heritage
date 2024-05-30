@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {ElMessage} from "element-plus";
-const baseURL = '/api'
+const baseURL = '/'
 
 const instance = axios.create({
     baseURL,
@@ -13,7 +13,7 @@ instance.interceptors.request.use(config => {
     config.headers['Content-Type'] = 'application/json'
     const token = localStorage.getItem('token')
     if(token) {
-        config.headers.token = token
+        config.headers.Authorization = token
     }
     return config
 }, error => {
