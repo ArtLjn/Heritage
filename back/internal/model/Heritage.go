@@ -13,6 +13,7 @@ type Heritage struct {
 	Field      string `json:"field"`
 	Type       int    `json:"type"`
 	CreateTime string `json:"create_time"`
+	Locate     string `json:"locate"`
 }
 
 func (Heritage) TableName() string {

@@ -12,6 +12,7 @@ import (
 	"back/internal/response"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"strings"
 )
 
 type HeritageRepo interface {
@@ -25,8 +26,8 @@ type HeritageRepo interface {
 	GetLevel() map[string]interface{}
 	PublishHeritageInheritor(inheritor *model.HeritageInheritor) error
 	PublishHeritageProject(project *model.HeritageProject) error
-	QueryHeritageInheritor(page, size int) map[string]interface{}
-	QueryHeritageProject(page, size int) map[string]interface{}
+	QueryHeritageInheritor(page, size int, locate string) map[string]interface{}
+	QueryHeritageProject(page, size int, locate string) map[string]interface{}
 	ReceiveHeritageInheritor()
 	ReceiveHeritageProject()
 }
@@ -47,7 +48,9 @@ func (s *HeritageService) CreateHeritageInheritor(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&heritageInheritor); err != nil {
 		s.r.NewBuildJsonError(ctx)
 		return
-	} else if err = s.repo.PublishHeritageInheritor(heritageInheritor); err != nil {
+	}
+	heritageInheritor.Locate = strings.ReplaceAll(heritageInheritor.Locate, "/", "-")
+	if err := s.repo.PublishHeritageInheritor(heritageInheritor); err != nil {
 		s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
 		return
 	}
@@ -96,12 +99,13 @@ func (s *HeritageService) QueryHeritageTask(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	size, _ := strconv.Atoi(ctx.Query("size"))
 	raw, _ := strconv.Atoi(ctx.Query("raw"))
+	header := ctx.Request.Header.Get("Authorization")
 	data := make(map[string]interface{})
 	switch raw {
 	case model.HeritageTypeInheritor:
-		data = s.repo.QueryHeritageInheritor(page, size)
+		data = s.repo.QueryHeritageInheritor(page, size, header)
 	case model.HeritageTypeProject:
-		data = s.repo.QueryHeritageProject(page, size)
+		data = s.repo.QueryHeritageProject(page, size, header)
 	}
 	s.r.SetCode(200).SetMsg("success").SetData(data).Build(ctx)
 }

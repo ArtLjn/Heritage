@@ -10,11 +10,13 @@ package data
 import (
 	"back/internal/model"
 	"back/internal/service"
+	"back/util"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
+	"github.com/thedevsaddam/gojsonq"
 	"log"
 	"strings"
 	"sync"
@@ -31,6 +33,7 @@ var workerPool = make(chan struct{}, 10) // 假设最多同时处理10个消息
 
 type heritageRepo struct {
 	data *Data
+	t    util.TokenManager
 }
 
 func (h heritageRepo) ReceiveHeritageInheritor() {
@@ -40,13 +43,13 @@ func (h heritageRepo) ReceiveHeritageInheritor() {
 func (h heritageRepo) ReceiveHeritageProject() {
 	h.receiveConsume(h.data.c.Rabbitmq.Queue[1], h.createHeritageProjectData)
 }
-func (h heritageRepo) QueryHeritageProject(page, size int) map[string]interface{} {
-	return h.queryPageSizeHeritage(page, size, model.HeritageTypeProject)
+func (h heritageRepo) QueryHeritageProject(page, size int, header string) map[string]interface{} {
+	return h.queryPageSizeHeritage(page, size, model.HeritageTypeProject, header)
 }
 
 // QueryHeritageInheritor 取出待审核消息
-func (h heritageRepo) QueryHeritageInheritor(page, size int) map[string]interface{} {
-	return h.queryPageSizeHeritage(page, size, model.HeritageTypeInheritor)
+func (h heritageRepo) QueryHeritageInheritor(page, size int, header string) map[string]interface{} {
+	return h.queryPageSizeHeritage(page, size, model.HeritageTypeInheritor, header)
 }
 
 func (h heritageRepo) PublishHeritageInheritor(inheritor *model.HeritageInheritor) error {
@@ -111,6 +114,7 @@ func (h heritageRepo) CreateHeritageProject(project *model.HeritageProject) erro
 func NewHeritageRepo(data *Data) service.HeritageRepo {
 	return &heritageRepo{
 		data: data,
+		t:    util.NewToken(data.rdb),
 	}
 }
 
@@ -288,11 +292,13 @@ func (h heritageRepo) receiveConsume(queue string, f func(string) error) {
 }
 
 func (h heritageRepo) createHeritageData(data string, raw int) error {
+	f := gojsonq.New().FromString(data)
 	m := model.Heritage{
 		UUID:       uuid.New().String()[:8],
 		Field:      data,
 		Type:       raw,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		Locate:     f.Find("locate").(string),
 	}
 	err := h.data.db.Table(m.TableName()).Create(&m).Error
 	if err != nil {
@@ -309,17 +315,27 @@ func (h heritageRepo) createHeritageInheritorData(data string) error {
 func (h heritageRepo) createHeritageProjectData(data string) error {
 	return h.createHeritageData(data, model.HeritageTypeProject)
 }
-func (h heritageRepo) queryPageSizeHeritage(page, size, raw int) map[string]interface{} {
+func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) map[string]interface{} {
+	err := h.t.VerifyToken(header)
+	if err != nil {
+		return nil
+	}
+	locate := util.GetLoginName(header)
+	if locate == "" {
+		return nil
+	}
 	var list []model.Heritage
 	// 计算偏移量
 	offset := (page - 1) * size
 	// 执行查询
 	h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
+		Where("locate = ?", locate).
 		Order("create_time asc").Offset(offset).Limit(size).Find(&list)
 
 	// 计算总记录数
 	var total int64
-	h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).Count(&total)
+	h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
+		Where("locate = ?", locate).Count(&total)
 	// 创建返回的map
 	m := make(map[string]interface{})
 	m["total"] = total
