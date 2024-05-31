@@ -18,7 +18,6 @@ import (
 	"github.com/streadway/amqp"
 	"github.com/thedevsaddam/gojsonq"
 	"log"
-	"strings"
 	"sync"
 	"time"
 )
@@ -34,6 +33,22 @@ var workerPool = make(chan struct{}, 10) // 假设最多同时处理10个消息
 type heritageRepo struct {
 	data *Data
 	t    util.TokenManager
+}
+
+func (h heritageRepo) QueryHeritageTaskById(id int) (model.Heritage, error) {
+	var m model.Heritage
+	if err := h.data.db.Table(model.Heritage{}.TableName()).Where("id = ?", id).First(&m).Error; err != nil {
+		return model.Heritage{}, err
+	}
+	return m, nil
+}
+
+func (h heritageRepo) DeleteHeritageTaskById(id int) error {
+	if err := h.data.db.Table(model.Heritage{}.TableName()).
+		Where("id = ?", id).Delete(&model.Heritage{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h heritageRepo) ReceiveHeritageInheritor() {
@@ -77,10 +92,10 @@ func (h heritageRepo) QueryAllHeritageProject() ([]interface{}, error) {
 }
 
 func (h heritageRepo) InitHeritageProject() {
-	h.initHeritage("getHeritageProject", HeritageProjectHashKey, heritageProject)
+	h.initHeritage("getHeritageProject", HeritageProjectHashKey, heritageProject, h.heritageProjectDb)
 }
 func (h heritageRepo) InitHeritageInheritor() {
-	h.initHeritage("getHeritageInheritorList", HeritageInheritorHashKey, heritageInheritor)
+	h.initHeritage("getHeritageInheritorList", HeritageInheritorHashKey, heritageInheritor, h.heritageInheritorDb)
 }
 
 func (h heritageRepo) CreateHeritageInheritor(inheritor *model.HeritageInheritor) error {
@@ -91,7 +106,8 @@ func (h heritageRepo) CreateHeritageInheritor(inheritor *model.HeritageInheritor
 		return fmt.Errorf("CreateHeritageInheritor error")
 	}
 	if err := h.createHeritage(strBody,
-		"createHeritageInheritor", "queryHeritageInheritor"); err != nil {
+		"createHeritageInheritor", "queryHeritageInheritor",
+		HeritageInheritorHashKey, heritageInheritor, h.InitHeritageInheritor); err != nil {
 		return err
 	}
 	return nil
@@ -105,7 +121,8 @@ func (h heritageRepo) CreateHeritageProject(project *model.HeritageProject) erro
 		return fmt.Errorf("CreateHeritageProject error")
 	}
 	if err := h.createHeritage(strBody,
-		"createHeritageProject", "queryHeritageProject"); err != nil {
+		"createHeritageProject", "queryHeritageProject",
+		HeritageProjectHashKey, heritageProject, h.InitHeritageProject); err != nil {
 		return err
 	}
 	return nil
@@ -118,27 +135,29 @@ func NewHeritageRepo(data *Data) service.HeritageRepo {
 	}
 }
 
-func (h heritageRepo) initHeritage(funcName, cacheKey string, f func([]interface{}) map[string]interface{}) {
+func (h heritageRepo) initHeritage(funcName, cacheKey string, f func([]interface{}) map[string]interface{}, g func(map[string]interface{})) {
 	res := h.data.c.CommonRequest.CommonEq(funcName, nil)
-	res = res[2 : len(res)-2]
-	if res == "[ ]" {
-		err := h.data.rdb.Del(context.Background(), cacheKey).Err()
+	var list []interface{}
+	var list2 [][]interface{}
+	if err := json.Unmarshal([]byte(res), &list); err != nil {
+		panic(err)
+	} else if len(list) == 0 {
+		err = h.data.rdb.Del(context.Background(), cacheKey).Err()
 		if err != nil {
 			panic(err)
 		}
-		return
-	}
-	var list [][]interface{}
-	if err := json.Unmarshal([]byte(strings.ReplaceAll(res, "\\", "")), &list); err != nil {
+	} else if err = json.Unmarshal([]byte(list[0].(string)), &list2); err != nil {
 		panic(err)
 	}
 	mx.Lock()
-	for _, v := range list {
+	for _, v := range list2 {
 		data := f(v)
 		by, _ := json.Marshal(data)
+		g(data)
 		_, err := h.data.rdb.HSet(context.Background(), cacheKey, v[0], string(by)).Result()
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 	}
 	mx.Unlock()
@@ -171,6 +190,37 @@ var heritageProject = func(v []interface{}) map[string]interface{} {
 	return data
 }
 
+func (h heritageRepo) heritageInheritorDb(b map[string]interface{}) {
+	var m model.HeritageInheritorDb
+	d, err := json.Marshal(&b)
+	if err != nil {
+		log.Printf("marshal error %v", err)
+		return
+	} else if err = json.Unmarshal(d, &m); err != nil {
+		log.Printf("unmarshal error %v", err)
+		return
+	} else if err = h.data.db.Create(&m).Error; err != nil {
+		log.Printf("create error %v", err)
+		return
+	}
+
+}
+
+func (h heritageRepo) heritageProjectDb(b map[string]interface{}) {
+	d, err := json.Marshal(&b)
+	var m model.HeritageProjectDb
+	if err != nil {
+		log.Printf("marshal error %v", err)
+		return
+	} else if err = json.Unmarshal(d, &m); err != nil {
+		log.Printf("unmarshal error %v", err)
+		return
+	} else if err = h.data.db.Create(&m).Error; err != nil {
+		log.Printf("create error %v", err)
+		return
+	}
+}
+
 func (h heritageRepo) publishMsg(data interface{}, queue string) error {
 	by, err := json.Marshal(&data)
 	if err != nil {
@@ -183,7 +233,8 @@ func (h heritageRepo) publishMsg(data interface{}, queue string) error {
 	return nil
 }
 
-func (h heritageRepo) createHeritage(strBody, funcName, queryFuncName string) error {
+func (h heritageRepo) createHeritage(strBody, funcName, queryFuncName, key string,
+	f func(v []interface{}) map[string]interface{}, m func()) error {
 	response, err := h.data.c.CommonRequest.ParsePutResult(strBody, funcName)
 	if err != nil {
 		return err
@@ -199,9 +250,10 @@ func (h heritageRepo) createHeritage(strBody, funcName, queryFuncName string) er
 		if len(list) == 0 {
 			return fmt.Errorf(funcName, " error")
 		}
-		data := heritageInheritor(list)
+		data := f(list)
 		by, _ := json.Marshal(data)
-		_, err = h.data.rdb.HSet(context.Background(), HeritageInheritorHashKey, response, string(by)).Result()
+		_, err = h.data.rdb.HSet(context.Background(), key, response, string(by)).Result()
+		go m()
 		if err != nil {
 			return err
 		}
@@ -217,11 +269,10 @@ func (h heritageRepo) queryAllHeritage(key string) ([]interface{}, error) {
 	var list []interface{}
 	if len(body) != 0 {
 		var d map[string]interface{}
-	Tag:
 		for _, v := range body {
 			if err = json.Unmarshal([]byte(v), &d); err != nil {
 				log.Printf("%s error %v", key, err)
-				continue Tag
+				continue
 			}
 			list = append(list, d)
 		}

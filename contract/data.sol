@@ -50,10 +50,12 @@ contract data {
         traditional_drama, // 传统戏剧
         QuYi, // 曲艺
         traditional_sports, //传统体育
+        traditional_art, // 传统美术
         traditional_skill, //传统技艺
-        traditional_medicine, //传统技艺
+        traditional_medicine, //传统医药
         folk_custom //民俗
     }
+
 
     // 遗产类别列表
     string[] public categoryList;

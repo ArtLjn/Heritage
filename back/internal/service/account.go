@@ -30,6 +30,7 @@ func NewAccountService(repo AccountRepo) *AccountService {
 }
 
 func (a *AccountService) Login(ctx *gin.Context) {
+	a.r = response.NewResponseBuild()
 	acc := model.AccountLogin{}
 	if err := ctx.ShouldBind(&acc); err != nil {
 		a.r.NewBuildJsonError(ctx)
@@ -45,6 +46,7 @@ func (a *AccountService) Login(ctx *gin.Context) {
 }
 
 func (a *AccountService) LogOut(ctx *gin.Context) {
+	a.r = response.NewResponseBuild()
 	key := ctx.Query("city")
 	a.repo.LogOut(key)
 	a.r.SetCode(200).SetMsg("success").SetData(nil).Build(ctx)
@@ -52,6 +54,7 @@ func (a *AccountService) LogOut(ctx *gin.Context) {
 }
 
 func (a *AccountService) VerifyToken(ctx *gin.Context) {
+	a.r = response.NewResponseBuild()
 	token := ctx.GetHeader("Authorization")
 	if token == "" {
 		a.r.SetCode(400).SetMsg("token失效").SetData(nil).Build(ctx)

@@ -7,6 +7,19 @@
 
 package model
 
+type HeritageProjectDb struct {
+	Name     string `json:"name"`
+	Category string `json:"category" gorm:"column:category"`
+	Rank     string `json:"rank"`
+	Locate   string `json:"locate"`
+	Details  string `json:"details"`
+	Number   string `json:"number"`
+}
+
+func (h *HeritageProjectDb) TableName() string {
+	return "heritage_project"
+}
+
 type HeritageProject struct {
 	Name     string `json:"name"`
 	Category uint8  `json:"category"`

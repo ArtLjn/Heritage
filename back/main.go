@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	go conf.InitGinLog("Heritage")
 	var c conf.Conf
 	wireApp(&c, r)
+
 	err := r.Run(fmt.Sprintf("%s:%s", c.Server.Host, c.Server.Port))
 	if err != nil {
 		panic(err)
@@ -41,14 +43,20 @@ func wireApp(c *conf.Conf, r *gin.Engine) {
 		return
 	}
 	dataData := data.NewData(c)
-	heritageRepo := data.NewHeritageRepo(dataData)
-	heritageService := service.NewHeritageService(heritageRepo)
 	accountRepo := data.NewAccountRepo(dataData)
-	go heritageRepo.InitHeritageInheritor()
-	go heritageRepo.InitHeritageProject()
+	heritageRepo := data.NewHeritageRepo(dataData)
+	heritageService := service.NewHeritageService(heritageRepo, accountRepo)
+	var mx sync.Mutex
+	go func() {
+		mx.Lock()
+		defer mx.Unlock()
+		heritageRepo.InitHeritageInheritor()
+		heritageRepo.InitHeritageProject()
+	}()
 	go heritageRepo.ReceiveHeritageInheritor()
 	go heritageRepo.ReceiveHeritageProject()
 	go accountRepo.InitAccount() // 构建账户数据
+
 	accountService := service.NewAccountService(accountRepo)
 	r.StaticFS("/img", http.Dir(c.UploadRepo.UploadPath))
 	util.NewUploadRepo(c.UploadRepo.UploadPath, c.UploadRepo.Domain, c.UploadRepo.MaxSize)

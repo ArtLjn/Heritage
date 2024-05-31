@@ -22,6 +22,9 @@ type ResponseBuild struct {
 	data []interface{}
 }
 
+func NewResponseBuild() ResponseBuild {
+	return ResponseBuild{}
+}
 func (r *ResponseBuild) SetCode(code int) BuildResponse {
 	r.code = code
 	return r

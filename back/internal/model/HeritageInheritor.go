@@ -7,6 +7,22 @@
 
 package model
 
+type HeritageInheritorDb struct {
+	Number       string `json:"number"`
+	Inheritor    string `json:"inheritor"`
+	InheritorImg string `json:"inheritorImg" gorm:"column:inheritorImg"`
+	Project      string `json:"project"`
+	CreateTime   string `json:"createTime" gorm:"column:createTime"`
+	CateGory     string `json:"category"  gorm:"column:category"`
+	Details      string `json:"details"`
+	Locate       string `json:"locate"`
+	Rank         string `json:"rank"`
+}
+
+func (h *HeritageInheritorDb) TableName() string {
+	return "heritage_inheritor"
+}
+
 type HeritageInheritor struct {
 	Inheritor    string `json:"inheritor"`
 	InheritorImg string `json:"inheritorImg"`

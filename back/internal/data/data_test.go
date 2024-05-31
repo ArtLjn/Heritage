@@ -51,3 +51,26 @@ func TestRedisPageSize(t *testing.T) {
 	//}
 
 }
+
+func TestInitHeritage(t *testing.T) {
+	var c conf.Conf
+	file, err := ioutil.ReadFile("/Users/ljn/Documents/finished/my_finished/back/conf/conf.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = json.Unmarshal(file, &c); err != nil {
+		return
+	}
+	res := c.CommonRequest.CommonEq("getHeritageProject", nil)
+	var list []interface{}
+	if err = json.Unmarshal([]byte(res), &list); err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	var list2 [][]interface{}
+	if err = json.Unmarshal([]byte(list[0].(string)), &list2); err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	fmt.Println(list2[0][0])
+}

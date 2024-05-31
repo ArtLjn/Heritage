@@ -17,7 +17,7 @@ type Heritage struct {
 }
 
 func (Heritage) TableName() string {
-	return "heritage"
+	return "heritage_task"
 }
 
 const (
