@@ -1,24 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import edit from "../components/show/edit.vue"
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path:"/",
+      redirect:"/home"
+    },
+    {
+      path:"/home",
+      name:"home",
       component:()=>import("../views/show/home.vue"),
-      redirect:"/home",
-      children:[
-        {
-          path:"home",
-          name:"home",
-          component:()=>import("../components/show/Index.vue")
-        },
-        {
-          path:"edit",
-          name:"edit",
-          component:edit
-        },
-      ]
+    },
+    {
+      path:"/edit",
+      name:"edit",
+      component:()=>import("../components/show/edit.vue"),
+    },
+    {
+      path:'/index',
+      name:"index",
+      component:()=>import("../components/show/Index.vue")
     },
     {
       path:"/admin",
@@ -71,18 +72,18 @@ const router = createRouter({
   ]
 })
 
-// router.beforeEach((to, from, next) => {
-//   // 检查是否访问的是 adminHome 及其子目录
-//   if (to.path.startsWith("/adminHome")) {
-//     // 如果用户已经认证，即存在 token
-//     if (localStorage.getItem("token")) {
-//       next(); // 允许访问
-//     } else {
-//       next("/admin"); // 如果未认证，重定向到登录页面
-//     }
-//   } else {
-//     next(); // 对于其他路由，不做认证检查
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  // 检查是否访问的是 adminHome 及其子目录
+  if (to.path.startsWith("/adminHome")) {
+    // 如果用户已经认证，即存在 token
+    if (localStorage.getItem("token")) {
+      next(); // 允许访问
+    } else {
+      next("/admin"); // 如果未认证，重定向到登录页面
+    }
+  } else {
+    next(); // 对于其他路由，不做认证检查
+  }
+});
 
 export default router

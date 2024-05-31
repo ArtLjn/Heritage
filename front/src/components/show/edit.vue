@@ -31,14 +31,24 @@ export default {
       locate:'',
       details:''
     })
-
     const cateGoryList  = reactive([])
     const levelList = reactive([])
     const toolbarConfig = {}
-    const editorConfig = { placeholder: '请输入内容...' }
-    // editorConfig.MENU_CONF['uploadImage'] = {
-    //   server: '/api/upload'
-    // }
+    const details = ref('')
+    const editorConfig = { MENU_CONF: {} }
+    editorConfig.MENU_CONF['uploadImage'] = {
+      server:'/api/upload',
+      timeout: 5 * 1000, // 5s
+      fieldName: 'file',
+      headers: { Accept: 'multipart/form-data' },
+      // 处理上传成功
+      onFailed: (file, result) => { // 使用箭头函数保持this的值
+        // 这里可以根据你的服务器返回的数据结构来获取图片URL
+        const imageUrl = result.data[0]; // 假设服务器返回的是 { url: '图片URL' }
+        // 将图片插入编辑器
+        details.value = `<img src="${imageUrl}" style="width: 200px;height: 200px;display: block;"/>\n`
+      },
+    }
     // 组件销毁时，也及时销毁编辑器
     onBeforeUnmount(() => {
       const editor = editorRef.value
@@ -75,7 +85,6 @@ export default {
 
     const showHeritageInheritorForm = ref(false)
     const showHeritageProjectForm = ref(false)
-    const details = ref('')
     const saveApply = () => {
       ElMessageBox.confirm("选择你要申请的类型", 'Title', {
         confirmButtonText: '非遗人项目申请',
@@ -159,7 +168,7 @@ export default {
       createHeritageProject,
       showHeritageProjectForm,
       showHeritageInheritorForm,
-      details
+      details,
     };
   },
   watch: {
