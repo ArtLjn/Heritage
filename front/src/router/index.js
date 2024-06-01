@@ -17,9 +17,9 @@ const router = createRouter({
       component:()=>import("../components/show/edit.vue"),
     },
     {
-      path:'/index',
-      name:"index",
-      component:()=>import("../components/show/Index.vue")
+      path:'/look',
+      name:"look",
+      component:()=>import("../components/show/look.vue")
     },
     {
       path:"/admin",
@@ -53,14 +53,9 @@ const router = createRouter({
           component:()=>import("../views/admin/apply_view.vue")
         },
         {
-          path:"/adminHome/browse",
-          name:"browse",
-          component:()=>import("../views/admin/Browse.vue")
-        },
-        {
-          path: "/adminHome/order",
-          name: "order",
-          component: () => import("../components/template_table.vue")
+          path:"heritage",
+          name:"heritage",
+          component:()=>import("../views/admin/heritage.vue")
         }
       ]
     },

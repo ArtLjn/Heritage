@@ -40,3 +40,14 @@ export const uploadFile = (file) => {
         }
     })
 }
+
+export const AuditHeritageTask = (id,allow) => {
+    return request.get(`/api/heritage/auditHeritageTask?id=${id}&allow=${allow}`)
+}
+
+export const HeritageInheritor = "1";
+export const HeritageProject = "2";
+export const QueryHeritageByLocate = (page,size,raw,locate) => {
+    return request.get(`/api/heritage/queryHeritageByLocate?page=${page}&size=${size}&raw=${raw}&locate=${locate}`)
+}
+

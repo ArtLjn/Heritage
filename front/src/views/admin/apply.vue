@@ -71,6 +71,7 @@ export default {
         query: {
           field: row.field,
           raw: raw,
+          id:row.id
         }
       })
     },
@@ -80,7 +81,7 @@ export default {
       }else if(raw === 2) {
         this.queryHeritageProjectTask()
       }
-    }
+    },
   }
 }
 </script>
@@ -101,8 +102,6 @@ export default {
           <template #default="{ row }">
             <el-button type="primary" @click="handleView(row,1)">查看</el-button>
           </template>
-        </el-table-column>
-        <el-table-column label="操作">
         </el-table-column>
         <template #empty>
           <el-empty :description="description"></el-empty>
@@ -134,8 +133,6 @@ export default {
           <template #default="{ row }">
             <el-button type="primary" @click="handleView(row,2)">查看</el-button>
           </template>
-        </el-table-column>cd
-        <el-table-column label="操作">
         </el-table-column>
         <template #empty>
           <el-empty :description="description"></el-empty>

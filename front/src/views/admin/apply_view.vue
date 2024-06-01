@@ -1,6 +1,7 @@
 <script>
 import {useRoute} from "vue-router";
 import router from "@/router";
+import {AuditHeritageTask} from "@/api/heritage";
 
 export default {
   name: "apply_view",
@@ -42,18 +43,19 @@ export default {
         3:"人类非物质文化遗产"
       },
       showInheritor:true,
-      showProject:false
+      showProject:false,
+      id:''
     }
   },
   mounted() {
     const route = useRoute();
     const raw  = route.query.raw.valueOf();
     const field = route.query.field;
+    this.id =  route.query.id;
     if (raw === '1') {
       this.showInheritor = true;
       this.showProject = false;
       this.heritageInheritor = JSON.parse(field);
-
     } else {
       this.showInheritor = false;
       this.showProject = true;
@@ -63,6 +65,39 @@ export default {
   methods: {
     back() {
       router.back();
+    },
+    handleAudit() {
+      this.$messageBox.confirm('是否确认审核', '提示', {
+        confirmButtonText: 'pass',
+        cancelButtonText: 'refuse',
+        type:"success",
+        beforeClose: (action, instance, done) => {
+          let res = false;
+          if (action === 'confirm') {
+            res = true;
+          }
+          instance.confirmButtonLoading = true;
+          instance.confirmButtonText = '执行中...';
+          AuditHeritageTask(this.id,res).then(res => {
+            instance.confirmButtonLoading = false;
+            done();
+            this.$message({
+              type: 'success',
+              message: '审核成功!'
+            });
+            router.back();
+          }).catch(err => {
+            instance.confirmButtonLoading = false;
+            done();
+            this.$message({
+              type: 'error',
+              message: '审核失败!'
+            });
+          })
+        }
+      }).catch(err => {
+
+      })
     }
   },
 }
@@ -113,7 +148,11 @@ export default {
     </el-form-item>
   </el-form>
 
-  <el-button @click="back" type="primary">返回</el-button>
+  <el-button-group >
+    <el-button @click="back" type="primary">返回</el-button>
+    <el-button @click="handleAudit">审核</el-button>
+  </el-button-group>
+
 </template>
 
 <style scoped>

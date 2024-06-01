@@ -13,10 +13,10 @@ type HeritageProjectDb struct {
 	Rank     string `json:"rank"`
 	Locate   string `json:"locate"`
 	Details  string `json:"details"`
-	Number   string `json:"number"`
+	Number   string `json:"number"  gorm:"primaryKey"`
 }
 
-func (h *HeritageProjectDb) TableName() string {
+func (h HeritageProjectDb) TableName() string {
 	return "heritage_project"
 }
 

@@ -35,26 +35,21 @@ type heritageRepo struct {
 	t    util.TokenManager
 }
 
-func (h heritageRepo) QueryHeritageTaskById(id int) (model.Heritage, error) {
-	var m model.Heritage
-	if err := h.data.db.Table(model.Heritage{}.TableName()).Where("id = ?", id).First(&m).Error; err != nil {
-		return model.Heritage{}, err
-	}
-	return m, nil
+func (h heritageRepo) QueryHeritageInheritorByLocate(page, size, raw int, locate string) (map[string]interface{}, error) {
+	return h.queryHeritageByLocate(page, size, raw, locate, model.HeritageInheritorDb{}.TableName(), []model.HeritageInheritorDb{})
 }
-
+func (h heritageRepo) QueryHeritageProjectByLocate(page, size, raw int, locate string) (map[string]interface{}, error) {
+	return h.queryHeritageByLocate(page, size, raw, locate, model.HeritageProjectDb{}.TableName(), []model.HeritageProjectDb{})
+}
+func (h heritageRepo) QueryHeritageTaskById(id int) (m model.Heritage, err error) {
+	return m, h.data.db.Table(model.Heritage{}.TableName()).Where("id = ?", id).First(&m).Error
+}
 func (h heritageRepo) DeleteHeritageTaskById(id int) error {
-	if err := h.data.db.Table(model.Heritage{}.TableName()).
-		Where("id = ?", id).Delete(&model.Heritage{}).Error; err != nil {
-		return err
-	}
-	return nil
+	return h.data.db.Table(model.Heritage{}.TableName()).Where("id = ?", id).Delete(&model.Heritage{}).Error
 }
-
 func (h heritageRepo) ReceiveHeritageInheritor() {
 	h.receiveConsume(h.data.c.Rabbitmq.Queue[0], h.createHeritageInheritorData)
 }
-
 func (h heritageRepo) ReceiveHeritageProject() {
 	h.receiveConsume(h.data.c.Rabbitmq.Queue[1], h.createHeritageProjectData)
 }
@@ -66,38 +61,30 @@ func (h heritageRepo) QueryHeritageProject(page, size int, header string) map[st
 func (h heritageRepo) QueryHeritageInheritor(page, size int, header string) map[string]interface{} {
 	return h.queryPageSizeHeritage(page, size, model.HeritageTypeInheritor, header)
 }
-
 func (h heritageRepo) PublishHeritageInheritor(inheritor *model.HeritageInheritor) error {
 	return h.publishMsg(inheritor, h.data.c.Rabbitmq.Queue[0])
 }
-
 func (h heritageRepo) PublishHeritageProject(project *model.HeritageProject) error {
 	return h.publishMsg(project, h.data.c.Rabbitmq.Queue[1])
 }
-
 func (h heritageRepo) GetCateGory() map[string]interface{} {
 	return model.HeritageInheritorModel.ToMappingCateGory()
 }
-
 func (h heritageRepo) GetLevel() map[string]interface{} {
 	return model.HeritageInheritorModel.ToMappingLevel()
 }
-
 func (h heritageRepo) QueryAllHeritageInheritor() ([]interface{}, error) {
 	return h.queryAllHeritage(HeritageInheritorHashKey)
 }
-
 func (h heritageRepo) QueryAllHeritageProject() ([]interface{}, error) {
 	return h.queryAllHeritage(HeritageProjectHashKey)
 }
-
 func (h heritageRepo) InitHeritageProject() {
 	h.initHeritage("getHeritageProject", HeritageProjectHashKey, heritageProject, h.heritageProjectDb)
 }
 func (h heritageRepo) InitHeritageInheritor() {
 	h.initHeritage("getHeritageInheritorList", HeritageInheritorHashKey, heritageInheritor, h.heritageInheritorDb)
 }
-
 func (h heritageRepo) CreateHeritageInheritor(inheritor *model.HeritageInheritor) error {
 	strBody := h.data.c.CommonRequest.CommonEq("createHeritageInheritor", inheritor.ToList())
 	if !h.data.c.CommonRequest.IsSuccess(
@@ -199,7 +186,7 @@ func (h heritageRepo) heritageInheritorDb(b map[string]interface{}) {
 	} else if err = json.Unmarshal(d, &m); err != nil {
 		log.Printf("unmarshal error %v", err)
 		return
-	} else if err = h.data.db.Create(&m).Error; err != nil {
+	} else if err = h.data.db.Save(&m).Error; err != nil {
 		log.Printf("create error %v", err)
 		return
 	}
@@ -215,7 +202,7 @@ func (h heritageRepo) heritageProjectDb(b map[string]interface{}) {
 	} else if err = json.Unmarshal(d, &m); err != nil {
 		log.Printf("unmarshal error %v", err)
 		return
-	} else if err = h.data.db.Create(&m).Error; err != nil {
+	} else if err = h.data.db.Save(&m).Error; err != nil {
 		log.Printf("create error %v", err)
 		return
 	}
@@ -376,17 +363,17 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 		return nil
 	}
 	var list []model.Heritage
+	// 计算总记录数
+	var total int64
 	// 计算偏移量
 	offset := (page - 1) * size
 	// 执行查询
-	h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
+	if err = h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
 		Where("locate = ?", locate).
-		Order("create_time asc").Offset(offset).Limit(size).Find(&list)
+		Order("create_time asc").Offset(offset).Limit(size).Find(&list).Count(&total).Error; err != nil {
+		log.Printf("query heritage error %v", err)
+	}
 
-	// 计算总记录数
-	var total int64
-	h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
-		Where("locate = ?", locate).Count(&total)
 	// 创建返回的map
 	m := make(map[string]interface{})
 	m["total"] = total
@@ -396,4 +383,30 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 	m["list"] = list
 
 	return m
+}
+
+func (h heritageRepo) queryHeritageByLocate(page, size, raw int, locate, tableName string, list interface{}) (map[string]interface{}, error) {
+	offset := (page - 1) * size
+	var total int64
+	if raw == 1 {
+		keyword := "%" + locate + "%"
+		if err := h.data.db.Table(tableName).Where("locate LIKE ?", keyword).Offset(offset).Limit(size).
+			Find(&list).Count(&total).Error; err != nil {
+			log.Printf("query heritage error %v", err)
+			return nil, err
+		}
+	} else {
+		if err := h.data.db.Table(tableName).
+			Where("locate = ?", locate).Offset(offset).Limit(size).
+			Find(&list).Count(&total).Error; err != nil {
+			log.Printf("query heritage error %v", err)
+			return nil, err
+		}
+	}
+	m := make(map[string]interface{})
+	m["total"] = total
+	m["totalPages"] = (total + int64(size) - 1) / int64(size) // 计算总页数
+	m["currentPage"] = page
+	m["list"] = list
+	return m, nil
 }

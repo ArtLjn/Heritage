@@ -32,6 +32,7 @@ func InitRouter(r *gin.Engine, heritageService *service.HeritageService,
 		heritageGroup.GET("/getLevel", heritageService.GetLevel)
 		heritageGroup.GET("/queryHeritageTask", heritageService.QueryHeritageTask)
 		heritageGroup.GET("/auditHeritageTask", heritageService.AuditHeritageTask)
+		heritageGroup.GET("/queryHeritageByLocate", heritageService.QueryHeritageByLocate)
 	}
 	accGroup := group.Group("/account")
 	{

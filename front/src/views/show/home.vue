@@ -3,7 +3,7 @@
     <el-main class="main-content">
       <h1 class="headline">区块链非物质遗产平台</h1>
       <div class="entry-grid">
-        <div class="entry-box" @click="$router.push('/index')">
+        <div class="entry-box" @click="$router.push('/look')">
           <h2>非遗概览</h2>
           <!-- You can add an icon here -->
         </div>

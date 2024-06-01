@@ -12,7 +12,9 @@ import (
 	"back/internal/response"
 	"back/util"
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 )
@@ -34,6 +36,8 @@ type HeritageRepo interface {
 	ReceiveHeritageProject()
 	QueryHeritageTaskById(id int) (model.Heritage, error)
 	DeleteHeritageTaskById(id int) error
+	QueryHeritageInheritorByLocate(page, size, raw int, locate string) (map[string]interface{}, error)
+	QueryHeritageProjectByLocate(page, size, raw int, locate string) (map[string]interface{}, error)
 }
 
 type HeritageService struct {
@@ -174,4 +178,30 @@ func (s *HeritageService) AuditHeritageTask(ctx *gin.Context) {
 		return
 	}
 	s.r.NewBuildSuccess(ctx)
+}
+
+func (s *HeritageService) QueryHeritageByLocate(ctx *gin.Context) {
+	s.r = response.NewResponseBuild()
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	size, _ := strconv.Atoi(ctx.Query("size"))
+	raw := ctx.Query("raw")
+	locate := ctx.Query("locate")
+	s.r = response.NewResponseBuild()
+	locates := strings.Split(locate, "-")
+	switch raw {
+	case "1":
+		list, err := s.repo.QueryHeritageInheritorByLocate(page, size, len(locates), locate)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
+			return
+		}
+		s.r.SetCode(200).SetData(list).Build(ctx)
+	case "2":
+		list, err := s.repo.QueryHeritageProjectByLocate(page, size, len(locates), locate)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
+			return
+		}
+		s.r.SetCode(200).SetData(list).Build(ctx)
+	}
 }

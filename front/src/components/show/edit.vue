@@ -181,8 +181,9 @@ export default {
 </script>
 
 <template>
+  <el-container class="top-container">
   <el-main class="main">
-    <div style="border: 1px solid #ccc">
+    <div class="edit" style="border: 1px solid #ccc;border-radius: 20px">
       <Toolbar
           style="border-bottom: 1px solid #ccc"
           :editor="editorRef"
@@ -190,7 +191,7 @@ export default {
           :mode="mode"
       />
       <Editor
-          style="height: 500px; overflow-y: hidden;"
+          style="height: 500px; overflow-y: hidden;border-bottom-left-radius: 20px;border-bottom-right-radius: 20px"
           v-model="details"
           :defaultConfig="editorConfig"
           :mode="mode"
@@ -288,4 +289,14 @@ export default {
       </el-form>
     </el-dialog>
   </el-main>
+  </el-container>
 </template>
+
+<style scoped>
+.top-container {
+  height: 100vh;
+  overflow: hidden;
+  background-image: linear-gradient(to right bottom, #8e44ad, #f1c40f); /* 更改为较浅的紫色到黄色渐变 */
+}
+
+</style>
