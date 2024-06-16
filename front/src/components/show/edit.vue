@@ -123,6 +123,13 @@ export default {
       CreateHeritageInheritor(heritageInheritor).then(res => {
         ElMessage.success(res.data.msg)
         showDialog.value = false
+        heritageInheritor.inheritor = null
+        heritageInheritor.inheritorImg = null
+        heritageInheritor.cateGory = null
+        heritageInheritor.level = null
+        heritageInheritor.details = null
+        heritageInheritor.locate = null
+        heritageInheritor.project = null
       }).catch(err => {
         ElMessage.error(err)
       })
@@ -137,6 +144,11 @@ export default {
       CreateHeritageProject(heritageProject).then(res => {
         ElMessage.success(res.data.msg)
         showDialog.value = false
+        heritageProject.locate = null
+        heritageProject.details = null
+        heritageProject.locate = null
+        heritageProject.name = null
+        heritageProject.category = null
       }).catch(err => {
         ElMessage.error(err)
       })
@@ -225,7 +237,7 @@ export default {
           <el-input v-model="heritageInheritor.project" style="width: 300px" placeholder="请输入申请项目"></el-input>
         </el-form-item>
         <el-form-item label="项目类型">
-          <el-select v-model="heritageInheritor.cateGory" placeholder="选择项目类型" style="width: 240px">
+          <el-select filterable v-model="heritageInheritor.cateGory" placeholder="选择项目类型" style="width: 240px">
             <el-option
                 v-for="item in cateGoryList"
                 :key="item.label"
@@ -235,7 +247,7 @@ export default {
           </el-select>
         </el-form-item>
         <el-form-item label="申请级别">
-          <el-select v-model="heritageInheritor.level" placeholder="选择申请级别" style="width: 240px">
+          <el-select filterable v-model="heritageInheritor.level" placeholder="选择申请级别" style="width: 240px">
             <el-option
                 v-for="item in levelList"
                 :key="item.label"
@@ -245,7 +257,7 @@ export default {
           </el-select>
         </el-form-item>
         <el-form-item label="申请地点">
-          <el-cascader placeholder="选择省市" :options="options" :props="{checkStrictly: true, value: 'label', label: 'label' }" clearable v-model="heritageInheritor.locate"/>
+          <el-cascader filterable placeholder="选择省市" :options="options" :props="{checkStrictly: true, value: 'label', label: 'label' }" clearable v-model="heritageInheritor.locate"/>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button @click="showDialog = false">取消</el-button>
