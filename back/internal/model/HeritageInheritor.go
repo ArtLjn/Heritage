@@ -52,24 +52,24 @@ var HeritageInheritorModel = new(HeritageInheritor)
 
 // Level
 const (
-	National   = iota
-	Provincial = 1
-	City       = 2
-	Human      = 3
+	National = iota
+	Provincial
+	City
+	Human
 )
 
 // CateGory
 const (
 	FolkLiterature      = iota // 民间文学
-	TraditionalMusic    = 1    // 传统音乐
-	TraditionalDance    = 2    //传统舞蹈
-	TraditionalDrama    = 3    // 传统戏剧
-	QuYi                = 4    // 曲艺
-	TraditionalSports   = 5    //传统体育
-	TraditionalArt      = 6    // 传统美术
-	TraditionalSkill    = 7    //传统技艺
-	TraditionalMedicine = 8    //传统医药
-	FolkCustom          = 9    //民俗
+	TraditionalMusic           // 传统音乐
+	TraditionalDance           //传统舞蹈
+	TraditionalDrama           // 传统戏剧
+	QuYi                       // 曲艺
+	TraditionalSports          //传统体育
+	TraditionalArt             // 传统美术
+	TraditionalSkill           //传统技艺
+	TraditionalMedicine        //传统医药
+	FolkCustom                 //民俗
 )
 
 func (h *HeritageInheritor) GetCateGory() string {

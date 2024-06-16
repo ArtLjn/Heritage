@@ -56,6 +56,11 @@ const router = createRouter({
           path:"heritage",
           name:"heritage",
           component:()=>import("../views/admin/heritage.vue")
+        },
+        {
+          path:"manager",
+          name:"manager",
+          component:()=>import("../components/admin/ManagerAccount.vue")
         }
       ]
     },

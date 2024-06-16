@@ -36,4 +36,9 @@ type Conf struct {
 	}
 
 	util.UploadRepo `json:"upload"`
+
+	AdminAccount struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	} `json:"adminAccount"`
 }

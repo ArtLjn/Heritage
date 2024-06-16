@@ -13,18 +13,25 @@ import (
 	"back/util"
 	"crypto/ecdsa"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"log"
 )
 
 type accountRepo struct {
 	data *Data
 	t    util.TokenManager
+}
+
+func (a accountRepo) GetAllAccount() []model.Account {
+	var acc []model.Account
+	if err := a.data.db.Find(&acc).Error; err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return acc
 }
 
 func (a accountRepo) VerifyToken(key string) error {
@@ -37,6 +44,10 @@ func (a accountRepo) LogOut(key string) {
 
 func (a accountRepo) Login(login model.AccountLogin) (data []interface{}, err error) {
 	acc := &model.Account{}
+	admin := a.data.c.AdminAccount
+	if admin.Username == login.Address && admin.Password == login.Password {
+		return []interface{}{"admin", nil, a.t.SaveToken(login.Address)}, nil
+	}
 	if err = a.data.db.Where("address = ? && password = ?",
 		login.Address, login.Password).First(&acc).Error; err != nil {
 		return nil, err
@@ -60,10 +71,21 @@ func (a accountRepo) InitAccount() {
 	}
 	mx.Lock()
 	defer mx.Unlock()
+
+	var existingAccounts []model.Account
+	if err := a.data.db.Find(&existingAccounts).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	existingCityMap := make(map[string]bool)
+	for _, account := range existingAccounts {
+		existingCityMap[account.City] = true
+	}
+	var newAccounts []model.Account
+
 	for k, v := range city {
-		if err := a.data.db.Where("city = ?", k).First(&model.Account{}).Error; err != nil &&
-			errors.Is(err, gorm.ErrRecordNotFound) {
-			a.data.db.Create(&model.Account{
+		if _, exists := existingCityMap[k]; !exists {
+			newAccounts = append(newAccounts, model.Account{
 				Address:  GenerateAccount()["address"],
 				Password: uuid.New().String()[:8],
 				City:     k,
@@ -72,15 +94,19 @@ func (a accountRepo) InitAccount() {
 		}
 		for _, c := range v {
 			prefix := fmt.Sprintf("%s-%s", k, c)
-			if err := a.data.db.Where("city = ?", prefix).First(&model.Account{}).Error; err != nil &&
-				errors.Is(err, gorm.ErrRecordNotFound) {
-				a.data.db.Create(&model.Account{
+			if _, exists := existingCityMap[prefix]; !exists {
+				newAccounts = append(newAccounts, model.Account{
 					Address:  GenerateAccount()["address"],
 					Password: uuid.New().String()[:8],
 					City:     prefix,
 					Level:    model.CityLevel,
 				})
 			}
+		}
+	}
+	if len(newAccounts) > 0 {
+		if err := a.data.db.Create(&newAccounts).Error; err != nil {
+			log.Fatal(err)
 		}
 	}
 }

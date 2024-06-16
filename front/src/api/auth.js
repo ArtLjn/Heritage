@@ -39,3 +39,7 @@ export const VerifyToken = () => {
        localStorage.clear()
     })
 }
+
+export const GetAllAccount = () => {
+    return request.get('/api/account/getAllAccount')
+}

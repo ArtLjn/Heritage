@@ -60,5 +60,5 @@ func wireApp(c *conf.Conf, r *gin.Engine) {
 	accountService := service.NewAccountService(accountRepo)
 	r.StaticFS("/img", http.Dir(c.UploadRepo.UploadPath))
 	util.NewUploadRepo(c.UploadRepo.UploadPath, c.UploadRepo.Domain, c.UploadRepo.MaxSize)
-	router.InitRouter(r, heritageService, accountService)
+	router.InitRouter(r, c, heritageService, accountService)
 }

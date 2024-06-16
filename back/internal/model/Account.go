@@ -15,6 +15,15 @@ type Account struct {
 	Level    uint   `json:"level"`
 }
 
+func (a *Account) ToFieldList() []string {
+	return []string{
+		"ID",
+		"Address",
+		"Password",
+		"City",
+		"Level",
+	}
+}
 func (a *Account) TableName() string {
 	return "account"
 }
