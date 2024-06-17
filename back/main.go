@@ -36,12 +36,17 @@ func main() {
 
 func wireApp(c *conf.Conf, r *gin.Engine) {
 	file, err := ioutil.ReadFile("conf/conf.json")
+	cityFile, err := ioutil.ReadFile("conf/city.json")
 	if err != nil {
 		log.Fatal(err)
 	}
+	var cityJson = make(map[string][]string)
 	if err = json.Unmarshal(file, &c); err != nil {
-		return
+		panic(err)
+	} else if err = json.Unmarshal(cityFile, &cityJson); err != nil {
+		panic(err)
 	}
+
 	dataData := data.NewData(c)
 	accountRepo := data.NewAccountRepo(dataData)
 	heritageRepo := data.NewHeritageRepo(dataData)
@@ -55,7 +60,7 @@ func wireApp(c *conf.Conf, r *gin.Engine) {
 	}()
 	go heritageRepo.ReceiveHeritageInheritor()
 	go heritageRepo.ReceiveHeritageProject()
-	go accountRepo.InitAccount() // 构建账户数据
+	go accountRepo.InitAccount(cityJson) // 构建账户数据
 
 	accountService := service.NewAccountService(accountRepo)
 	r.StaticFS("/img", http.Dir(c.UploadRepo.UploadPath))

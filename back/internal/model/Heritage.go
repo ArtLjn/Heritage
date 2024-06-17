@@ -14,6 +14,7 @@ type Heritage struct {
 	Type       int    `json:"type"`
 	CreateTime string `json:"create_time"`
 	Locate     string `json:"locate"`
+	Level      uint8  `json:"level"`
 }
 
 func (Heritage) TableName() string {

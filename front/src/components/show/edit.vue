@@ -59,22 +59,22 @@ export default {
     onMounted(() => {
       GetCateGory().then((res) => {
         const data = res.data.data[0]
-        Object.keys(data).forEach((key,val) => {
-          const data = {
+        Object.keys(data).forEach((key) => {
+          const f = {
             label: key,
-            value: val
+            value: data[key]
           }
-          cateGoryList.push(data)
+          cateGoryList.push(f)
         })
       })
       GetLevel().then(res => {
         const data = res.data.data[0]
-        Object.keys(data).forEach((key,val) => {
-          const data = {
+        Object.keys(data).forEach((key) => {
+          const f = {
             label: key,
-            value: val
+            value: data[key]
           }
-          levelList.push(data)
+          levelList.push(f)
         })
       })
     })

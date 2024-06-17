@@ -330,13 +330,13 @@ func (h heritageRepo) receiveConsume(queue string, f func(string) error) {
 }
 
 func (h heritageRepo) createHeritageData(data string, raw int) error {
-	f := gojsonq.New().FromString(data)
 	m := model.Heritage{
 		UUID:       uuid.New().String()[:8],
 		Field:      data,
 		Type:       raw,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-		Locate:     f.Find("locate").(string),
+		Locate:     gojsonq.New().FromString(data).Find("locate").(string),
+		Level:      uint8(gojsonq.New().FromString(data).Find("level").(float64)),
 	}
 	err := h.data.db.Table(m.TableName()).Create(&m).Error
 	if err != nil {
@@ -367,9 +367,16 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 	var total int64
 	// 计算偏移量
 	offset := (page - 1) * size
+	query := h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw)
+	if locate == "国家" {
+		query = query.Where("level = ?", model.National)
+	} else if locate == "人类非物质遗产" {
+		query = query.Where("level = ?", model.Human)
+	} else {
+		query = query.Where("locate = ?", locate)
+	}
 	// 执行查询
-	if err = h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw).
-		Where("locate = ?", locate).
+	if err = query.
 		Order("create_time asc").Offset(offset).Limit(size).Find(&list).Count(&total).Error; err != nil {
 		log.Printf("query heritage error %v", err)
 	}

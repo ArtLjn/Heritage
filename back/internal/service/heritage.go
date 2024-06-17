@@ -13,6 +13,7 @@ import (
 	"back/util"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strconv"
@@ -61,7 +62,10 @@ func (s *HeritageService) CreateHeritageInheritor(ctx *gin.Context) {
 		return
 	}
 	heritageInheritor.Locate = strings.ReplaceAll(heritageInheritor.Locate, "/", "-")
-	if err := s.repo.PublishHeritageInheritor(heritageInheritor); err != nil {
+	if len(strings.Split(heritageInheritor.Locate, "-")) == 1 && heritageInheritor.Level == model.City {
+		s.r.SetCode(400).SetMsg("请填写你所在的市级单位").Build(ctx)
+		return
+	} else if err := s.repo.PublishHeritageInheritor(heritageInheritor); err != nil {
 		s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
 		return
 	}
@@ -73,6 +77,9 @@ func (s *HeritageService) CreateHeritageProject(ctx *gin.Context) {
 	heritageProject := model.HeritageProjectModel
 	if err := ctx.ShouldBindJSON(&heritageProject); err != nil {
 		s.r.NewBuildJsonError(ctx)
+		return
+	} else if len(strings.Split(heritageProject.Locate, "-")) == 1 && heritageProject.Level == model.City {
+		s.r.SetCode(400).SetMsg("请填写你所在的市级单位").Build(ctx)
 		return
 	} else if err = s.repo.PublishHeritageProject(heritageProject); err != nil {
 		s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
@@ -140,32 +147,32 @@ func (s *HeritageService) AuditHeritageTask(ctx *gin.Context) {
 	}
 	city := util.GetLoginName(header)
 	m, err := s.repo.QueryHeritageTaskById(id)
+
 	if err != nil && city == "" {
 		s.r.SetCode(400).SetMsg(err.Error()).Build(ctx)
 		return
-	} else if m.Locate != city {
-		s.r.SetCode(400).SetMsg("审核失败，没有审核权限").Build(ctx)
-		return
-	}
-
-	if res {
-		if m.Type == 1 {
+	} else if res {
+		if m.Type == model.HeritageTypeInheritor {
 			var ia model.HeritageInheritor
 			if err = json.Unmarshal([]byte(m.Field), &ia); err != nil {
 				s.r.NewBuildJsonError(ctx)
 				return
-			}
-			if err = s.repo.CreateHeritageInheritor(&ia); err != nil {
+			} else if err = s.validPermission(ia.Level, city); err != nil {
+				s.r.SetCode(400).SetMsg(err.Error()).Build(ctx)
+				return
+			} else if err = s.repo.CreateHeritageInheritor(&ia); err != nil {
 				s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
 				return
 			}
-		} else if m.Type == 2 {
+		} else if m.Type == model.HeritageTypeProject {
 			var pa model.HeritageProject
 			if err = json.Unmarshal([]byte(m.Field), &pa); err != nil {
 				s.r.NewBuildJsonError(ctx)
 				return
-			}
-			if err = s.repo.CreateHeritageProject(&pa); err != nil {
+			} else if err = s.validPermission(pa.Level, city); err != nil {
+				s.r.SetCode(400).SetMsg(err.Error()).Build(ctx)
+				return
+			} else if err = s.repo.CreateHeritageProject(&pa); err != nil {
 				s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
 				return
 			}
@@ -204,4 +211,13 @@ func (s *HeritageService) QueryHeritageByLocate(ctx *gin.Context) {
 		}
 		s.r.SetCode(200).SetData(list).Build(ctx)
 	}
+}
+
+func (s *HeritageService) validPermission(level uint8, city string) error {
+	if level == model.National && city != "国家" {
+		return fmt.Errorf("权限不允许")
+	} else if level == model.Human && city != "人类非物质遗产" {
+		return fmt.Errorf("权限不允许")
+	}
+	return nil
 }

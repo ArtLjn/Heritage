@@ -29,14 +29,14 @@ instance.interceptors.response.use(response => {
         return response
     }
     if(response.data.code === 400) {
-        ElMessage.error(response.data.info)
+        ElMessage.error(response.data.msg)
         return new Promise(() => {})
     }
-    ElMessage.error(response.data.info)
+    ElMessage.error(response.data.msg)
     return Promise.reject(response.data)
 }, error => {
     //特殊情况
-    ElMessage.error(error.response?.data?.message || '服务异常')
+    ElMessage.error(error.response?.data?.msg || '服务异常')
     return Promise.reject(error) // 返回一个包含错误信息的Promise对象
 })
 

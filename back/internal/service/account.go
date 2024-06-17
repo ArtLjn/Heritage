@@ -18,11 +18,12 @@ import (
 )
 
 type AccountRepo interface {
-	InitAccount()
+	InitAccount(map[string][]string)
 	Login(login model.AccountLogin) (data []interface{}, err error)
 	LogOut(key string)
 	VerifyToken(key string) error
 	GetAllAccount() []model.Account
+	QueryAccountByCity(city string) model.Account
 }
 
 type AccountService struct {
