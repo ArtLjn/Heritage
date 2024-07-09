@@ -56,8 +56,6 @@ func (h heritageRepo) ReceiveHeritageProject() {
 func (h heritageRepo) QueryHeritageProject(page, size int, header string) map[string]interface{} {
 	return h.queryPageSizeHeritage(page, size, model.HeritageTypeProject, header)
 }
-
-// QueryHeritageInheritor 取出待审核消息
 func (h heritageRepo) QueryHeritageInheritor(page, size int, header string) map[string]interface{} {
 	return h.queryPageSizeHeritage(page, size, model.HeritageTypeInheritor, header)
 }
@@ -122,7 +120,9 @@ func NewHeritageRepo(data *Data) service.HeritageRepo {
 	}
 }
 
-func (h heritageRepo) initHeritage(funcName, cacheKey string, f func([]interface{}) map[string]interface{}, g func(map[string]interface{})) {
+func (h heritageRepo) initHeritage(funcName, cacheKey string,
+	f func([]interface{}) map[string]interface{},
+	g func(map[string]interface{})) {
 	res := h.data.c.CommonRequest.CommonEq(funcName, nil)
 	var list []interface{}
 	var list2 [][]interface{}
