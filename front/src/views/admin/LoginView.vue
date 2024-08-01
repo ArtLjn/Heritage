@@ -4,13 +4,11 @@
       <div class="container" id="container">
         <div class="form-container sign-in-container">
           <form action="#">
-            <h1>后台管理系统</h1>
-            <span>Version 1.0.0</span>
+            <h1>非物质文化遗产</h1>
             <div v-if="showLogin">
               <input type="text" placeholder="账户" v-model="account" />
               <input type="password" placeholder="密码" v-model="password" />
               <div class="button" @click="handleLogin()" >登录</div>
-<!--              <div class="click-button" @click="onRegister">注册</div>-->
             </div>
             
             <div v-if="showRegister">
@@ -22,15 +20,11 @@
           </form>
           
         </div>
-        
+
         <div class="overlay-container">
           <div class="overlay">
             <div class="overlay-panel overlay-right">
-<!--              <img class="logo" src="@/assets/logo.svg" alt="" />-->
-              <p>
-                「 Business Direction is everything 」
-              </p>
-              <!-- <button class="ghost" id="signUp">About Us</button>n -->
+              <img class="logo" src="@/assets/login.jpg" alt="" />
             </div>
           </div>
         </div>
@@ -78,6 +72,7 @@ export default {
           localStorage.setItem("city",data[0])
           localStorage.setItem("rank",data[1])
           localStorage.setItem("token",data[2])
+          localStorage.setItem("name",body.address)
           this.$message.success("登录成功")
           router.push("/adminHome")
         } else {
@@ -93,7 +88,7 @@ export default {
 <style  scoped>
 #login {
   font-family: "Montserrat", sans-serif;
-  background: #f6f5f7;
+  background-image: linear-gradient(to right bottom, #b19bc8, #bdb287);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -104,8 +99,9 @@ export default {
   background-size: cover;
 }
 .logo {
-  width: 160px;
-  height: auto;
+  width: 500px;
+  margin-left: 90px;
+  height: 570px;
 }
 h1 {
   font-weight: bold;

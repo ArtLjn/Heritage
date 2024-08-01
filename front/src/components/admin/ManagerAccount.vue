@@ -1,17 +1,20 @@
 <script>
-import {GetAllAccount,ExportAccount} from "@/api/auth";
+import {GetAllAccount} from "@/api/auth";
 import axios from "axios";
 
 export default {
   name: "ManagerAccount",
   data() {
     return {
-      Accounts:[]
+      Accounts:[],
+      currentCity:'',
+      AccountCopy:[]
     }
   },
   mounted() {
     GetAllAccount().then(res => {
       this.Accounts = res.data.data[0]
+      this.AccountCopy = res.data.data[0]
     })
   },
   methods:{
@@ -41,13 +44,42 @@ export default {
         console.error('下载文件失败', error);
       }
     }
+  },
+  watch:{
+    'currentCity'(newValue) {
+      const keywords = newValue.toLowerCase().split(' '); // 拆分用户输入的关键字并转换为小写
+      this.Accounts = this.AccountCopy.map(acc => {
+        let matches = 0;
+        const regex = new RegExp(keywords.join('|'), 'gi'); // 构建正则表达式，匹配所有关键字，忽略大小写
+        const matchContent = `${acc.id} ${acc.city} ${acc.level}`.toLowerCase(); // 将博客标题、内容、前言拼接并转换为小写
+        matchContent.replace(regex, () => {
+          matches++;
+          return ''; // 使用空字符串替换匹配到的内容
+        });
+        return { acc, matches };
+      }).filter(item => item.matches > 0)
+          .sort((a, b) => b.matches - a.matches) // 根据匹配度降序排序
+          .map(item => item.acc); // 仅保留博客对象
+      if (newValue === '' || newValue === null) {
+        this.Accounts = this.AccountCopy;
+      }
+    }
   }
 }
 </script>
 
 <template>
-  <el-button type="warning" plain style="margin-bottom: 20px;width: 100px" @click="downloadFile">导出Excel</el-button>
-  <el-table :data="Accounts" class="custom-table"  stripe :lazy="true" border height="700">
+  <el-form inline style="float:left">
+    <el-form-item label="订单号">
+      <el-input v-model="currentCity"  placeholder="输入订单号进行查询"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="warning"
+                 plain  @click="downloadFile">导出Excel</el-button>
+    </el-form-item>
+  </el-form>
+
+  <el-table :data="Accounts" class="custom-table"  stripe :lazy="true" border height="700" >
     <el-table-column label="ID" width="100" prop="id"></el-table-column>
     <el-table-column label="Address" width="400" prop="address"></el-table-column>
     <el-table-column label="Password" width="120" prop="password"></el-table-column>
