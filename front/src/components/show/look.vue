@@ -31,21 +31,23 @@ export default {
 <template>
   <el-container class="carousel-box">
     <el-main class="main-content">
-      <el-tabs v-model="activeName"  type="border-card" style="
-      border-bottom-right-radius: 20px;border-bottom-left-radius: 20px">
-        <el-cascader placeholder="选择省市"
-                     filterable
-                     style="margin-bottom: 10px"
-                     v-model="currentCity"
-                     :options="options" :props="{checkStrictly: true, value: 'label', label: 'label' }"
-                     clearable />
-        <el-tab-pane label="非遗人" name="first">
-          <heritage-inheritor :city="currentCity" :key="currentCity"/>
-        </el-tab-pane>
-        <el-tab-pane label="非遗项目" name="second">
-          <heritage-project :city="currentCity" :key="currentCity"/>
-        </el-tab-pane>
-      </el-tabs>
+      <div style="border: 1px solid #ccc; border-radius: 20px; overflow: hidden;">
+        <el-tabs v-model="activeName"  type="border-card" style="
+        border-bottom-right-radius: 20px;border-bottom-left-radius: 20px">
+          <el-cascader placeholder="选择省市"
+                       filterable
+                       style="margin-bottom: 10px"
+                       v-model="currentCity"
+                       :options="options" :props="{checkStrictly: true, value: 'label', label: 'label' }"
+                       clearable />
+          <el-tab-pane label="非遗人" name="first">
+            <heritage-inheritor :city="currentCity" :key="currentCity"/>
+          </el-tab-pane>
+          <el-tab-pane label="非遗项目" name="second">
+            <heritage-project :city="currentCity" :key="currentCity"/>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -54,6 +56,6 @@ export default {
 .carousel-box {
   height: 100vh;
   overflow: hidden;
-  background-image: linear-gradient(to right bottom, #8e44ad, #f1c40f); /* 更改为较浅的紫色到黄色渐变 */
+  background-image: linear-gradient(to right bottom, #604281, #bdb287);
 }
 </style>

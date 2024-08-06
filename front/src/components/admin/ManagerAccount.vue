@@ -70,8 +70,8 @@ export default {
 
 <template>
   <el-form inline style="float:left">
-    <el-form-item label="订单号">
-      <el-input v-model="currentCity"  placeholder="输入订单号进行查询"></el-input>
+    <el-form-item >
+      <el-input v-model="currentCity"  placeholder="输入相关城市信息"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="warning"

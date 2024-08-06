@@ -8,7 +8,7 @@
 package router
 
 import (
-	"back/common/auth/middleware"
+	middlewa "back/common/auth/middleware"
 	"back/conf"
 	"back/internal/service"
 	"back/util"
@@ -37,7 +37,7 @@ func InitRouter(r *gin.Engine, c *conf.Conf, heritageService *service.HeritageSe
 		heritageGroup.GET("/auditHeritageTask", heritageService.AuditHeritageTask)
 		heritageGroup.GET("/queryHeritageByLocate", heritageService.QueryHeritageByLocate)
 	}
-	availedAdmin := middleware.IsAdmin(accountService, c)
+	availedAdmin := middlewa.IsAdmin(accountService, c)
 	accGroup := group.Group("/account")
 	{
 		accGroup.POST("/login", accountService.Login)

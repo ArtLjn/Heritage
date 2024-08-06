@@ -5,7 +5,7 @@
 @Software: GoLand
 */
 
-package middleware
+package middlewa
 
 import (
 	"back/conf"

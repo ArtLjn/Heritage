@@ -30,7 +30,7 @@ export default {
 .top-container {
   height: 100vh;
   overflow: hidden;
-  background-image: linear-gradient(to right bottom, #8e44ad, #f1c40f); /* 更改为较浅的紫色到黄色渐变 */
+  background-image: linear-gradient(to right bottom, #604281, #bdb287);
 }
 
 .main-content {
