@@ -34,7 +34,7 @@
     ]
   },
   "upload": {
-    "upload_path": "/Users/ljn/Documents/finished/my_finished/back/static",
+    "upload_path": "/root/deploy/back/static",
     "domain": "http://localhost:8080/img",
     "max_size": "3MB"
   },

@@ -14,10 +14,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type HeritageRepo interface {
@@ -55,7 +56,6 @@ func NewHeritageService(repo HeritageRepo, ac AccountRepo) *HeritageService {
 }
 
 func (s *HeritageService) CreateHeritageInheritor(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	heritageInheritor := model.HeritageInheritorModel
 	if err := ctx.ShouldBindJSON(&heritageInheritor); err != nil {
 		s.r.NewBuildJsonError(ctx)
@@ -73,7 +73,6 @@ func (s *HeritageService) CreateHeritageInheritor(ctx *gin.Context) {
 }
 
 func (s *HeritageService) CreateHeritageProject(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	heritageProject := model.HeritageProjectModel
 	if err := ctx.ShouldBindJSON(&heritageProject); err != nil {
 		s.r.NewBuildJsonError(ctx)
@@ -89,7 +88,6 @@ func (s *HeritageService) CreateHeritageProject(ctx *gin.Context) {
 }
 
 func (s *HeritageService) QueryAllHeritageInheritor(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	list, err := s.repo.QueryAllHeritageInheritor()
 	if err != nil {
 		s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
@@ -99,7 +97,6 @@ func (s *HeritageService) QueryAllHeritageInheritor(ctx *gin.Context) {
 }
 
 func (s *HeritageService) QueryAllHeritageProject(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	list, err := s.repo.QueryAllHeritageProject()
 	if err != nil {
 		s.r.SetCode(500).SetMsg(err.Error()).Build(ctx)
@@ -109,17 +106,14 @@ func (s *HeritageService) QueryAllHeritageProject(ctx *gin.Context) {
 }
 
 func (s *HeritageService) GetCateGory(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	s.r.SetCode(200).SetData(s.repo.GetCateGory()).Build(ctx)
 }
 
 func (s *HeritageService) GetLevel(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	s.r.SetCode(200).SetData(s.repo.GetLevel()).Build(ctx)
 }
 
 func (s *HeritageService) QueryHeritageTask(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	size, _ := strconv.Atoi(ctx.Query("size"))
 	raw, _ := strconv.Atoi(ctx.Query("raw"))
@@ -135,7 +129,6 @@ func (s *HeritageService) QueryHeritageTask(ctx *gin.Context) {
 }
 
 func (s *HeritageService) AuditHeritageTask(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
 	header := ctx.Request.Header.Get("Authorization")
 	id, _ := strconv.Atoi(ctx.Query("id"))
 	allow := ctx.Query("allow")
@@ -188,12 +181,12 @@ func (s *HeritageService) AuditHeritageTask(ctx *gin.Context) {
 }
 
 func (s *HeritageService) QueryHeritageByLocate(ctx *gin.Context) {
-	s.r = response.NewResponseBuild()
+
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	size, _ := strconv.Atoi(ctx.Query("size"))
 	raw := ctx.Query("raw")
 	locate := ctx.Query("locate")
-	s.r = response.NewResponseBuild()
+
 	locates := strings.Split(locate, "-")
 	switch raw {
 	case "1":

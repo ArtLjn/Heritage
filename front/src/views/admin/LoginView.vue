@@ -10,21 +10,21 @@
               <input type="password" placeholder="密码" v-model="password" />
               <div class="button" @click="handleLogin()" >登录</div>
             </div>
-            
+
             <div v-if="showRegister">
               <input type="text" placeholder="名称" v-model="account" />
               <input type="password" placeholder="密码" v-model="password" />
-              <div class="button" @click="login()" >注册</div>
+<!--              <div class="button" @click="login()" >注册</div>-->
               <div class="click-button" @click="onLogin">登录</div>
             </div>
           </form>
-          
+
         </div>
 
         <div class="overlay-container">
           <div class="overlay">
             <div class="overlay-panel overlay-right">
-              <img class="logo" src="@/assets/login.jpg" alt="" />
+              <img class="logo" src="../../assets/img/login.jpg" alt="" />
             </div>
           </div>
         </div>
@@ -69,18 +69,22 @@ export default {
       Login(body).then((res) => {
         if (res.data.code === 200) {
           const data = res.data.data[0];
-          localStorage.setItem("city",data[0])
-          localStorage.setItem("rank",data[1])
-          localStorage.setItem("token",data[2])
-          localStorage.setItem("name",body.address)
-          this.$message.success("登录成功")
-          router.push("/adminHome")
+          localStorage.setItem("city", data[0]);
+          localStorage.setItem("rank", data[1]);
+          localStorage.setItem("token", data[2]);
+          localStorage.setItem("name", body.address);
+          this.$message.success("登录成功");
+
+          // Delay the redirect by 1 seconds (1000 milliseconds)
+          setTimeout(() => {
+            router.push("/adminHome/index");
+          }, 1000);
         } else {
-          this.$message.error(res.data.message)
+          this.$message.error(res.data.msg);
         }
       }).catch((err) => {
-        this.$message.error(err)
-      })
+        this.$message.error(err);
+      });
     }
   }
 };

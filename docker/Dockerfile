@@ -6,6 +6,9 @@ RUN chmod +x ./deploy/* && \
     chmod +x ./deploy/back/*
 EXPOSE 8080
 EXPOSE 8081
+EXPOSE 3306
+EXPOSE 6379
+EXPOSE 15672
 
 # Update package sources and install required packages
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \

@@ -12,9 +12,10 @@ import (
 	"back/internal/response"
 	"bytes"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/xuri/excelize/v2"
-	"net/http"
 )
 
 type AccountRepo interface {
@@ -24,6 +25,9 @@ type AccountRepo interface {
 	VerifyToken(key string) error
 	GetAllAccount() []model.Account
 	QueryAccountByCity(city string) model.Account
+	SetCacheList(key string, o []model.Account)
+	RestoreList(key string) []interface{}
+	GetCacheAccountList() []model.Account
 }
 
 type AccountService struct {
@@ -36,7 +40,6 @@ func NewAccountService(repo AccountRepo) *AccountService {
 }
 
 func (a *AccountService) Login(ctx *gin.Context) {
-	a.r = response.NewResponseBuild()
 	acc := model.AccountLogin{}
 	if err := ctx.ShouldBind(&acc); err != nil {
 		a.r.NewBuildJsonError(ctx)
@@ -44,37 +47,37 @@ func (a *AccountService) Login(ctx *gin.Context) {
 	}
 	data, err := a.repo.Login(acc)
 	if err != nil {
-		a.r.SetCode(400).SetMsg("登录失败").SetData(nil).Build(ctx)
+		a.r.SetCode(400).SetMsg("登录失败").Build(ctx)
 		return
 	}
 	a.r.SetCode(200).SetMsg("success").SetData(data).Build(ctx)
-	return
 }
 
 func (a *AccountService) LogOut(ctx *gin.Context) {
-	a.r = response.NewResponseBuild()
 	key := ctx.Query("city")
 	a.repo.LogOut(key)
-	a.r.SetCode(200).SetMsg("success").SetData(nil).Build(ctx)
-	return
+	a.r.SetCode(200).SetMsg("success").Build(ctx)
 }
 
 func (a *AccountService) VerifyToken(ctx *gin.Context) {
-	a.r = response.NewResponseBuild()
 	token := ctx.GetHeader("Authorization")
 	if err := a.IsOk(token); err != nil {
 		a.r.SetCode(400).SetMsg(err.Error()).SetData(nil).Build(ctx)
 		return
 	}
 	a.r.SetCode(200).SetMsg("success").SetData(nil).Build(ctx)
-	return
 }
 
 func (a *AccountService) FindAllAccount(ctx *gin.Context) {
-	a.r = response.NewResponseBuild()
-	data := a.repo.GetAllAccount()
-	a.r.SetCode(200).SetMsg("success").SetData(data).Build(ctx)
-	return
+	cacheAccounts := a.repo.GetCacheAccountList()
+	if len(cacheAccounts) > 0 {
+		a.r.SetCode(200).SetMsg("success").SetData(cacheAccounts).Build(ctx)
+		return
+	} else {
+		data := a.repo.GetAllAccount()
+		a.repo.SetCacheList("heritageAccount", data)
+		a.r.SetCode(200).SetMsg("success").SetData(data).Build(ctx)
+	}
 }
 
 func (a *AccountService) IsOk(token string) error {
@@ -83,13 +86,12 @@ func (a *AccountService) IsOk(token string) error {
 	}
 	err := a.repo.VerifyToken(token)
 	if err != nil {
-		return fmt.Errorf("token失效")
+		return fmt.Errorf("token失效请重新登录")
 	}
 	return nil
 }
 
 func (a *AccountService) ExportAccount(ctx *gin.Context) {
-	a.r = response.NewResponseBuild()
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)

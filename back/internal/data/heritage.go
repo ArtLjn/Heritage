@@ -358,16 +358,18 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 	if err != nil {
 		return nil
 	}
+
 	locate := util.GetLoginName(header)
 	if locate == "" {
 		return nil
 	}
+
 	var list []model.Heritage
-	// 计算总记录数
 	var total int64
-	// 计算偏移量
-	offset := (page - 1) * size
+
+	// 首先计算总记录数
 	query := h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw)
+
 	if locate == "国家" {
 		query = query.Where("level = ?", model.National)
 	} else if locate == "人类非物质遗产" {
@@ -375,10 +377,18 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 	} else {
 		query = query.Where("locate = ?", locate)
 	}
-	// 执行查询
-	if err = query.
-		Order("create_time asc").Offset(offset).Limit(size).Find(&list).Count(&total).Error; err != nil {
+
+	// 先计算总记录数
+	if err = query.Count(&total).Error; err != nil {
+		log.Printf("query heritage count error: %v", err)
+		return nil
+	}
+
+	// 再查询分页数据
+	offset := (page - 1) * size
+	if err = query.Order("create_time asc").Offset(offset).Limit(size).Find(&list).Error; err != nil {
 		log.Printf("query heritage error %v", err)
+		return nil
 	}
 
 	// 创建返回的map
@@ -395,25 +405,37 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 func (h heritageRepo) queryHeritageByLocate(page, size, raw int, locate, tableName string, list interface{}) (map[string]interface{}, error) {
 	offset := (page - 1) * size
 	var total int64
+
+	query := h.data.db.Table(tableName)
+
+	// 根据 raw 参数判断查询方式
 	if raw == 1 {
+		// 使用 LIKE 查询 locate
 		keyword := "%" + locate + "%"
-		if err := h.data.db.Table(tableName).Where("locate LIKE ?", keyword).Offset(offset).Limit(size).
-			Find(&list).Count(&total).Error; err != nil {
-			log.Printf("query heritage error %v", err)
-			return nil, err
-		}
+		query = query.Where("locate LIKE ?", keyword)
 	} else {
-		if err := h.data.db.Table(tableName).
-			Where("locate = ?", locate).Offset(offset).Limit(size).
-			Find(&list).Count(&total).Error; err != nil {
-			log.Printf("query heritage error %v", err)
-			return nil, err
-		}
+		// 使用精确查询 locate
+		query = query.Where("locate = ?", locate)
 	}
+
+	// 先执行 Count 查询总数
+	if err := query.Count(&total).Error; err != nil {
+		log.Printf("query heritage count error: %v", err)
+		return nil, err
+	}
+
+	// 再执行分页查询
+	if err := query.Offset(offset).Limit(size).Find(&list).Error; err != nil {
+		log.Printf("query heritage error: %v", err)
+		return nil, err
+	}
+
+	// 构建返回的结果
 	m := make(map[string]interface{})
 	m["total"] = total
 	m["totalPages"] = (total + int64(size) - 1) / int64(size) // 计算总页数
 	m["currentPage"] = page
 	m["list"] = list
+
 	return m, nil
 }

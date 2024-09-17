@@ -15,6 +15,8 @@ export default {
     GetAllAccount().then(res => {
       this.Accounts = res.data.data[0]
       this.AccountCopy = res.data.data[0]
+    }).catch(err => {
+        console.log(err)
     })
   },
   methods:{

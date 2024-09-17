@@ -11,7 +11,9 @@ import (
 	"back/internal/model"
 	"back/internal/service"
 	"back/util"
+	"context"
 	"crypto/ecdsa"
+	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -42,6 +44,22 @@ func (a accountRepo) GetAllAccount() []model.Account {
 	return acc
 }
 
+func (a accountRepo) SetCacheList(key string, o []model.Account) {
+	for _, value := range o {
+		serializedValue, err := json.Marshal(value)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		i, e := a.data.rdb.RPush(context.Background(), key, serializedValue).Result()
+		if e != nil {
+			log.Println("Failed to push serialized value to Redis list:", e, i)
+			continue
+		}
+	}
+	log.Println("SetCacheList", key)
+}
+
 func (a accountRepo) VerifyToken(key string) error {
 	return a.t.VerifyToken(key)
 }
@@ -65,6 +83,42 @@ func (a accountRepo) Login(login model.AccountLogin) (data []interface{}, err er
 		return []interface{}{acc.City, acc.Level, token}, nil
 	}
 	return nil, fmt.Errorf("登录失败")
+}
+
+func (a accountRepo) RestoreList(key string) []interface{} {
+	var newList []interface{}
+	serializedValues, err := a.data.rdb.LRange(context.Background(), key, 0, -1).Result()
+	if err != nil {
+		log.Println("Failed to retrieve values from Redis list:", err)
+		panic(err)
+	}
+	for _, serializedValue := range serializedValues {
+		value := make(map[string]interface{})
+		if e := json.Unmarshal([]byte(serializedValue), &value); e != nil {
+			log.Println("Failed to deserialize value from JSON:", e)
+			continue
+		}
+		newList = append(newList, &value)
+	}
+	return newList
+}
+func (a accountRepo) GetCacheAccountList() []model.Account {
+	var (
+		acd []model.Account
+		acs []interface{}
+	)
+	acs = a.RestoreList("heritageAccount")
+	if len(acs) != 0 {
+		b, e := json.Marshal(&acs)
+		if e != nil {
+			panic(e)
+		}
+		if err := json.Unmarshal(b, &acd); err != nil {
+			panic(err)
+		}
+		return acd
+	}
+	return nil
 }
 
 func (a accountRepo) InitAccount(city map[string][]string) {

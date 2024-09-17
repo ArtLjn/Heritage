@@ -9,6 +9,7 @@ package data
 
 import (
 	"back/conf"
+	"back/internal/model"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -73,4 +74,26 @@ func TestInitHeritage(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(list2[0][0])
+}
+
+func TestGetCacheAccount(t *testing.T) {
+	var c *conf.Conf
+	file, err := ioutil.ReadFile("/Users/ljn/Documents/finished/my_finished/back/conf/conf.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = json.Unmarshal(file, &c); err != nil {
+		panic(err)
+	}
+
+	dataData := NewData(c)
+	acc := NewAccountRepo(dataData)
+	acs := acc.RestoreList("heritageAccount")
+	b, e := json.Marshal(&acs)
+	if e != nil {
+		panic(e)
+	}
+	var acd []model.Account
+	json.Unmarshal(b, &acd)
+	t.Log(acd)
 }

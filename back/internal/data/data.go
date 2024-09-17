@@ -9,6 +9,7 @@ package data
 
 import (
 	"back/conf"
+	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
@@ -52,4 +53,16 @@ func NewRDB(conf *conf.Conf) *redis.Client {
 			Password: conf.Redis.Password,
 		},
 	)
+}
+
+// NewClearCacheFunc 现在返回一个函数
+func NewClearCacheFunc(d *Data, done chan bool) func() {
+	return func() {
+		defer func() {
+			done <- true
+		}()
+		if err := d.rdb.Del(context.Background(), "heritageAccount").Err(); err != nil {
+			panic("redis del cache failed: " + err.Error())
+		}
+	}
 }

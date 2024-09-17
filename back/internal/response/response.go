@@ -14,6 +14,7 @@ type BuildResponse interface {
 	SetMsg(msg string) BuildResponse
 	SetData(data ...interface{}) BuildResponse
 	Build(ctx *gin.Context)
+	Clear()
 }
 
 type ResponseBuild struct {
@@ -40,8 +41,15 @@ func (r *ResponseBuild) SetData(data ...interface{}) BuildResponse {
 	return r
 }
 
+func (r *ResponseBuild) Clear() {
+	r.code = 0
+	r.msg = ""
+	r.data = nil
+}
+
 func (r *ResponseBuild) Build(ctx *gin.Context) {
 	ctx.JSON(r.code, gin.H{"code": r.code, "msg": r.msg, "data": r.data})
+	r.Clear()
 }
 
 func (r *ResponseBuild) NewBuildJsonError(ctx *gin.Context) {
