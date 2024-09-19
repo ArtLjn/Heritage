@@ -36,7 +36,7 @@ func (h *HeritageProject) ToList() []interface{} {
 	return []interface{}{
 		h.Name,
 		h.Category,
-		h.Level,
+		h.Level - 1,
 		h.Locate,
 		h.Details,
 	}

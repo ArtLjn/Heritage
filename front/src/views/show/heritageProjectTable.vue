@@ -131,8 +131,8 @@ export default {
       <td data-label="Number">{{ client.number }}</td>
       <td data-label="Name">{{ client.name }}</td>
       <td data-label="CateGory">{{ client.category }}</td>
-      <td data-label="Locate">{{ client.locate }}</td>
       <td data-label="Rank">{{ client.rank }}</td>
+      <td data-label="Locate">{{ client.locate }}</td>
       <td class="before:hidden lg:w-1 whitespace-nowrap">
         <BaseButtons type="justify-start lg:justify-end" no-wrap>
           <BaseButton

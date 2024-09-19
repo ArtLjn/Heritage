@@ -1,5 +1,4 @@
 import request from "@/utils/request";
-import instance from "@/utils/request";
 import axios from "axios";
 
 export const GetCateGory = () => {

@@ -23,11 +23,11 @@ export default {
     return {
       isModalActive: false,
       isModalDangerActive: false,
-      heritageProjectTaskList: {
+      heritageInheritorTask:{
         currentPage: 1,
         list:[],
         total:0,
-        totalPages:0
+        totalPages: 0
       },
     };
   },
@@ -36,8 +36,8 @@ export default {
     totalInheritorPagesList() {
       const pages = [];
       // 这里确保总页数不为0时，生成页码
-      if (this.heritageProjectTaskList.totalPages > 0) {
-        for (let i = 1; i <= this.heritageProjectTaskList.totalPages; i++) {
+      if (this.heritageInheritorTask.totalPages > 0) {
+        for (let i = 1; i <= this.heritageInheritorTask.totalPages; i++) {
           pages.push(i);
         }
       }
@@ -45,7 +45,7 @@ export default {
     },
   },
   mounted() {
-    this.queryHeritageProjectTask();
+    this.queryHeritageInheritorTask();
   },
   methods: {
     mdiAlert() {
@@ -54,30 +54,30 @@ export default {
     mdiEye() {
       return mdiEye
     },
-    queryHeritageProjectTask() {
+    queryHeritageInheritorTask() {
       QueryHeritageTask(
-        this.heritageProjectTaskList.currentPage,
+        this.heritageInheritorTask.currentPage,
         10,
-        2,
+        1,
         localStorage.getItem("city")
       ).then(res => {
         const data = res.data.data[0];
-        this.heritageProjectTaskList.list = data.list;
-        this.heritageProjectTaskList.total = data.total;
-        this.heritageProjectTaskList.totalPages = data.totalPages;
-        this.heritageProjectTaskList.currentPage = data.currentPage;
+        this.heritageInheritorTask.list = data.list;
+        this.heritageInheritorTask.total = data.total;
+        this.heritageInheritorTask.totalPages = data.totalPages;
+        this.heritageInheritorTask.currentPage = data.currentPage;
       })
     },
     // 更新当前页，并重新获取数据
-    handleProjectCurrentChange(page) {
-      if (page >= 1 && page <= this.heritageProjectTaskList.totalPages) {
-        this.heritageProjectTaskList.currentPage = page;
-        this.queryHeritageProjectTask(); // 每次点击分页时重新获取数据
+    handleInheritorCurrentChange(page) {
+      if (page >= 1 && page <= this.heritageInheritorTask.totalPages) {
+        this.heritageInheritorTask.currentPage = page;
+        this.queryHeritageInheritorTask(); // 每次点击分页时重新获取数据
       }
     },
-    handleSeeProject(data) {
+    handleSeeInheritor(data) {
       router.push({
-        path: "/watchProject",
+        path: "/watchInheritor",
         query: data
       });
     }
@@ -87,7 +87,7 @@ export default {
 
 <template>
   <NotificationBar color="warning" :icon="mdiAlert()">
-    <b>注意：</b> 该表格为<b>非遗传承项目</b>的申请任务表
+    <b>注意：</b> 该表格为非遗传承人的申请任务表
   </NotificationBar>
   <!-- 模态框 -->
   <CardBoxModal v-model="isModalActive" title="Sample modal">
@@ -108,18 +108,20 @@ export default {
       <th>UUID</th>
       <th>Type</th>
       <th>Locate</th>
-      <th>Level</th>
+      <th>ApplyLevel</th>
+      <th>PassLevel</th>
       <th>CreateTime</th>
       <th />
     </tr>
     </thead>
     <tbody>
-    <tr v-for="client in heritageProjectTaskList.list" :key="client.id">
+    <tr v-for="client in heritageInheritorTask.list" :key="client.id">
       <td data-label="ID">{{ client.id }}</td>
       <td data-label="UUID">{{ client.uuid }}</td>
       <td data-label="Type">{{ client.type }}</td>
       <td data-label="Locate">{{ client.locate }}</td>
-      <td data-label="Level">{{ client.level }}</td>
+      <td data-label="ApplyLevel">{{ client.apply_level }}</td>
+      <td data-label="PassLevel">{{ client.pass_level }}</td>
       <td data-label="CreateTime" class="lg:w-1 whitespace-nowrap">
         <small class="text-gray-500 dark:text-slate-400" :title="client.create_time">{{
             client.create_time
@@ -131,7 +133,7 @@ export default {
             color="info"
             :icon="mdiEye()"
             small
-            @click="handleSeeProject(client)"
+            @click="handleSeeInheritor(client)"
           />
         </BaseButtons>
       </td>
@@ -146,14 +148,14 @@ export default {
         <BaseButton
           v-for="page in totalInheritorPagesList"
           :key="page"
-          :active="page === heritageProjectTaskList.currentPage"
+          :active="page === heritageInheritorTask.currentPage"
           :label="page === '...' ? '...' : page"
-          :color="page === heritageProjectTaskList.currentPage ? 'lightDark' : 'whiteDark'"
+          :color="page === heritageInheritorTask.currentPage ? 'lightDark' : 'whiteDark'"
           small
-          @click="handleProjectCurrentChange(page)"
+          @click="handleInheritorCurrentChange(page)"
         />
       </BaseButtons>
-      <small>Page {{  heritageProjectTaskList.currentPage  }} of {{ heritageProjectTaskList.totalPages  }}</small>
+      <small>Page {{  heritageInheritorTask.currentPage  }} of {{ heritageInheritorTask.totalPages  }}</small>
     </BaseLevel>
   </div>
 

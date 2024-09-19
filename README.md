@@ -24,25 +24,47 @@
 - jwt
 
 ### 系统截图
-<table>
-    <tr>
-        <td><img src="static/WX20240708-141154@2x.png"/></td>
-        <td><img src="static/WX20240708-141236@2x.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="static/WX20240708-141304@2x.png"/></td>
-        <td><img src="static/WX20240708-141324@2x.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="static/WX20240708-141349@2x.png"/></td>
-        <td><img src="static/WX20240708-141401@2x.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="static/WX20240708-141418@2x.png"/></td>
-        <td><img src="static/WX20240708-141502@2x.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="static/WX20240708-141610@2x.png"/></td>
-        <td><img src="static/WX20240708-142017@2x.png"/></td>
-    </tr>
-</table>
+
+[//]: # (<table>)
+
+[//]: # (    <tr>)
+
+[//]: # (        <td><img src="static/WX20240708-141154@2x.png"/></td>)
+
+[//]: # (        <td><img src="static/WX20240708-141236@2x.png"/></td>)
+
+[//]: # (    </tr>)
+
+[//]: # (    <tr>)
+
+[//]: # (        <td><img src="static/WX20240708-141304@2x.png"/></td>)
+
+[//]: # (        <td><img src="static/WX20240708-141324@2x.png"/></td>)
+
+[//]: # (    </tr>)
+
+[//]: # (    <tr>)
+
+[//]: # (        <td><img src="static/WX20240708-141349@2x.png"/></td>)
+
+[//]: # (        <td><img src="static/WX20240708-141401@2x.png"/></td>)
+
+[//]: # (    </tr>)
+
+[//]: # (    <tr>)
+
+[//]: # (        <td><img src="static/WX20240708-141418@2x.png"/></td>)
+
+[//]: # (        <td><img src="static/WX20240708-141502@2x.png"/></td>)
+
+[//]: # (    </tr>)
+
+[//]: # (    <tr>)
+
+[//]: # (        <td><img src="static/WX20240708-141610@2x.png"/></td>)
+
+[//]: # (        <td><img src="static/WX20240708-142017@2x.png"/></td>)
+
+[//]: # (    </tr>)
+
+[//]: # (</table>)

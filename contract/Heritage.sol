@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 /*
-@Time : 2024/5/23 上午9:49 
+@Time : 2024/5/23 上午9:49
 @Author : ljn
 @File : Heritage
 @Software: GoLand
@@ -42,9 +42,9 @@ contract Heritage {
     }
 
     enum Level {
-        national, //国家级
         provincial, // 省级
         city, // 市级
+        national, //国家级
         human // 人类非物质文化遗产
     }
 
@@ -63,7 +63,7 @@ contract Heritage {
 
     string[] public categoryList;
     string constant category = "民间文学,传统音乐,传统舞蹈,传统戏剧,曲艺,传统体育,传统美术,传统技艺,传统医药,民俗";
-    string constant rankStr = "国家级,省级,市级,列入人类非物质文化遗产代表作名录的项目";
+    string constant rankStr = "省级,市级,国家级,人类非物质文化遗产";
     string[] public rankList;
 
     HeritageInheritor[] public heritageInheritorList;
@@ -78,6 +78,8 @@ contract Heritage {
     event ProjectUpdated(string number, string details, string locate);
     event InheritorDeleted(string number);
     event ProjectDeleted(string number);
+    event InheritorUpdatedRank(string number,string rank);
+    event ProjectUpdatedRank(string number,string rank);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can execute this function.");
@@ -170,29 +172,131 @@ contract Heritage {
 
     function updateHeritageInheritor(string memory number, string memory details, string memory locate) public onlyOwner {
         require(queryHeritageInheritor[number].isActive, "Inheritor does not exist or is inactive.");
+
+        // 更新 map 数据
         queryHeritageInheritor[number].details = details;
         queryHeritageInheritor[number].locate = locate;
+
+        // 同步更新列表数据
+        for (uint i = 0; i < heritageInheritorList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageInheritorList[i].number)) == keccak256(abi.encodePacked(number))) {
+                heritageInheritorList[i].details = details;
+                heritageInheritorList[i].locate = locate;
+                break;
+            }
+        }
+
         emit InheritorUpdated(number, details, locate);
     }
 
     function updateHeritageProject(string memory number, string memory details, string memory locate) public onlyOwner {
         require(queryHeritageProject[number].isActive, "Project does not exist or is inactive.");
+
+        // 更新 map 数据
         queryHeritageProject[number].details = details;
         queryHeritageProject[number].locate = locate;
+
+        // 同步更新列表数据
+        for (uint i = 0; i < heritageProjectList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageProjectList[i].number)) == keccak256(abi.encodePacked(number))) {
+                heritageProjectList[i].details = details;
+                heritageProjectList[i].locate = locate;
+                break;
+            }
+        }
+
         emit ProjectUpdated(number, details, locate);
     }
 
+    function updateHeritageInheritorLevel(string memory number, Level rank) public onlyOwner {
+        require(queryHeritageInheritor[number].isActive, "Inheritor does not exist or is inactive.");
+
+        // 更新 map 数据
+        queryHeritageInheritor[number].rank = rankList[uint256(rank)];
+
+        // 同步更新列表数据
+        for (uint i = 0; i < heritageInheritorList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageInheritorList[i].number)) == keccak256(abi.encodePacked(number))) {
+                heritageInheritorList[i].rank = rankList[uint256(rank)];
+                break;
+            }
+        }
+
+        emit InheritorUpdatedRank(number, rankList[uint256(rank)]);
+    }
+
+    function updateHeritageProjectLevel(string memory number, Level rank) public onlyOwner {
+        require(queryHeritageProject[number].isActive, "Project does not exist or is inactive.");
+
+        // 更新 map 数据
+        queryHeritageProject[number].rank = rankList[uint256(rank)];
+
+        // 同步更新列表数据
+        for (uint i = 0; i < heritageProjectList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageProjectList[i].number)) == keccak256(abi.encodePacked(number))) {
+                heritageProjectList[i].rank = rankList[uint256(rank)];
+                break;
+            }
+        }
+
+        emit ProjectUpdatedRank(number, rankList[uint256(rank)]);
+    }
     function deleteHeritageInheritor(string memory number) public onlyOwner {
         require(queryHeritageInheritor[number].isActive, "Inheritor already inactive.");
+
+        // 将 map 中的继承人标记为无效
         queryHeritageInheritor[number].isActive = false;
+
+        // 从列表中删除继承人
+        for (uint i = 0; i < heritageInheritorList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageInheritorList[i].number)) == keccak256(abi.encodePacked(number))) {
+                // 移除继承人
+                removeInheritorAtIndex(i);
+                break;
+            }
+        }
+
         emit InheritorDeleted(number);
     }
 
     function deleteHeritageProject(string memory number) public onlyOwner {
         require(queryHeritageProject[number].isActive, "Project already inactive.");
+
+        // 将 map 中的项目标记为无效
         queryHeritageProject[number].isActive = false;
+
+        // 从列表中删除项目
+        for (uint i = 0; i < heritageProjectList.length; i++) {
+            if (keccak256(abi.encodePacked(heritageProjectList[i].number)) == keccak256(abi.encodePacked(number))) {
+                // 移除项目
+                removeProjectAtIndex(i);
+                break;
+            }
+        }
+
         emit ProjectDeleted(number);
     }
+
+    // 辅助函数：从 heritageInheritorList 中移除指定索引的继承人
+    function removeInheritorAtIndex(uint index) internal {
+        require(index < heritageInheritorList.length, "Index out of bounds");
+
+        for (uint i = index; i < heritageInheritorList.length - 1; i++) {
+            heritageInheritorList[i] = heritageInheritorList[i + 1];
+        }
+        heritageInheritorList.pop(); // 删除最后一个元素
+    }
+
+    // 辅助函数：从 heritageProjectList 中移除指定索引的项目
+    function removeProjectAtIndex(uint index) internal {
+        require(index < heritageProjectList.length, "Index out of bounds");
+
+        for (uint i = index; i < heritageProjectList.length - 1; i++) {
+            heritageProjectList[i] = heritageProjectList[i + 1];
+        }
+        heritageProjectList.pop(); // 删除最后一个元素
+    }
+
 
     function filterHeritageInheritorsByCategory(CateGory category) public view returns (HeritageInheritor[] memory) {
         uint count = 0;

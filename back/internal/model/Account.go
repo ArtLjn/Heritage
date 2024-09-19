@@ -21,7 +21,7 @@ func (a *Account) ToFieldList() []string {
 		"Address",
 		"Password",
 		"City",
-		"Level",
+		"ApplyLevel",
 	}
 }
 func (a *Account) TableName() string {

@@ -38,7 +38,7 @@ func (h *HeritageInheritor) ToList() []interface{} {
 		h.InheritorImg,
 		h.Project,
 		h.CateGory,
-		h.Level,
+		h.Level - 1,
 		h.Details,
 		h.Locate,
 	}
@@ -50,11 +50,11 @@ func (h *HeritageInheritor) TableName() string {
 
 var HeritageInheritorModel = new(HeritageInheritor)
 
-// Level
+// ApplyLevel
 const (
-	National = iota
-	Provincial
+	Provincial = iota + 1
 	City
+	National
 	Human
 )
 
@@ -114,6 +114,20 @@ func (h *HeritageInheritor) GetLevel() string {
 	}
 }
 
+func GetLevelByID(level uint) string {
+	switch level {
+	case National:
+		return "国家级"
+	case Provincial:
+		return "省级"
+	case City:
+		return "市级"
+	case Human:
+		return "人类非物质文化遗产"
+	default:
+		return "未知"
+	}
+}
 func (h *HeritageInheritor) ToMappingCateGory() map[string]interface{} {
 	return map[string]interface{}{
 		"民间文学": FolkLiterature,
@@ -136,4 +150,17 @@ func (h *HeritageInheritor) ToMappingLevel() map[string]interface{} {
 		"市级":        City,
 		"人类非物质文化遗产": Human,
 	}
+}
+
+func HeritageByLevel(city string) uint {
+	if city == "国家" {
+		return National
+	} else if city == "人类非物质遗产" {
+		return Human
+	} else if city == "市级" {
+		return City
+	} else if city == "省级" {
+		return Provincial
+	}
+	return 0
 }

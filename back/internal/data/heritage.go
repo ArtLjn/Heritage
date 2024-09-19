@@ -35,6 +35,18 @@ type heritageRepo struct {
 	t    util.TokenManager
 }
 
+func (h heritageRepo) QueryHeritageInheritorBlockChainDataByNumber(number string) []interface{} {
+	return h.queryHeritageBlockChainRecord("queryHeritageInheritor", number)
+}
+func (h heritageRepo) QueryHeritageProjectBlockChainDataByNumber(number string) []interface{} {
+	return h.queryHeritageBlockChainRecord("queryHeritageProject", number)
+}
+func (h heritageRepo) UpdateHeritageInheritorLevel(number string, rank uint) error {
+	return h.updateHeritageLevel("updateHeritageInheritorLevel", number, rank, h.InitHeritageInheritor)
+}
+func (h heritageRepo) UpdateHeritageProjectLevel(number string, rank uint) error {
+	return h.updateHeritageLevel("updateHeritageProjectLevel", number, rank, h.InitHeritageProject)
+}
 func (h heritageRepo) QueryHeritageInheritorByLocate(page, size, raw int, locate string) (map[string]interface{}, error) {
 	return h.queryHeritageByLocate(page, size, raw, locate, model.HeritageInheritorDb{}.TableName(), []model.HeritageInheritorDb{})
 }
@@ -83,36 +95,53 @@ func (h heritageRepo) InitHeritageProject() {
 func (h heritageRepo) InitHeritageInheritor() {
 	h.initHeritage("getHeritageInheritorList", HeritageInheritorHashKey, heritageInheritor, h.heritageInheritorDb)
 }
-func (h heritageRepo) CreateHeritageInheritor(inheritor *model.HeritageInheritor) error {
+func (h heritageRepo) CreateHeritageInheritor(inheritor *model.HeritageInheritor) ([]interface{}, error) {
 	strBody := h.data.c.CommonRequest.CommonEq("createHeritageInheritor", inheritor.ToList())
 	if !h.data.c.CommonRequest.IsSuccess(
 		strBody,
 	) {
-		return fmt.Errorf("CreateHeritageInheritor error")
+		return nil, fmt.Errorf("CreateHeritageInheritor error")
 	}
-	if err := h.createHeritage(strBody,
-		"createHeritageInheritor", "queryHeritageInheritor",
+	response, err := h.data.c.CommonRequest.ParsePutResult(strBody, "createHeritageInheritor")
+	if err != nil {
+		return nil, err
+	}
+
+	if err := h.createHeritage(response, "queryHeritageInheritor",
 		HeritageInheritorHashKey, heritageInheritor, h.InitHeritageInheritor); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return []interface{}{response}, nil
 }
 
-func (h heritageRepo) CreateHeritageProject(project *model.HeritageProject) error {
+func (h heritageRepo) CreateHeritageProject(project *model.HeritageProject) ([]interface{}, error) {
 	strBody := h.data.c.CommonRequest.CommonEq("createHeritageProject", project.ToList())
 	if !h.data.c.CommonRequest.IsSuccess(
 		strBody,
 	) {
-		return fmt.Errorf("CreateHeritageProject error")
+		return nil, fmt.Errorf("CreateHeritageProject error")
 	}
-	if err := h.createHeritage(strBody,
-		"createHeritageProject", "queryHeritageProject",
+	response, err := h.data.c.CommonRequest.ParsePutResult(strBody, "createHeritageProject")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = h.createHeritage(response, "queryHeritageProject",
 		HeritageProjectHashKey, heritageProject, h.InitHeritageProject); err != nil {
+		return nil, err
+	}
+	return []interface{}{response}, nil
+}
+func (h heritageRepo) UpdateHeritageTask(level uint, id int, number string) error {
+	if err := h.data.db.Model(model.Heritage{}).Where("id =?", id).Updates(map[string]interface{}{
+		"pass_level": level,
+		"number":     number,
+	}).Error; err != nil {
+		log.Printf("update error %v", err)
 		return err
 	}
 	return nil
 }
-
 func NewHeritageRepo(data *Data) service.HeritageRepo {
 	return &heritageRepo{
 		data: data,
@@ -120,27 +149,52 @@ func NewHeritageRepo(data *Data) service.HeritageRepo {
 	}
 }
 
+func (h heritageRepo) updateHeritageLevel(funcName, number string, rank uint, m func()) error {
+	transRes := h.data.c.CommonRequest.CommonEq(funcName, []interface{}{
+		number, rank - 1,
+	})
+	// 成功更新区块链数据
+	if h.data.c.CommonRequest.IsSuccess(transRes) {
+		// 刷新备份数据库数据
+		go m()
+	}
+	return nil
+}
+
+// initHeritage: copy区块链数据写入数据库
+// params:
+// funcName: 合约方法名称
+// cacheKey: redis缓存key名称
+// f: 将列表转为json格式
+// g: 存入数据库方法
 func (h heritageRepo) initHeritage(funcName, cacheKey string,
 	f func([]interface{}) map[string]interface{},
 	g func(map[string]interface{})) {
 	res := h.data.c.CommonRequest.CommonEq(funcName, nil)
 	var list []interface{}
 	var list2 [][]interface{}
+	// 解析从区块链上获得的数据
 	if err := json.Unmarshal([]byte(res), &list); err != nil {
 		panic(err)
 	} else if len(list) == 0 {
+		// 如果列表为空 删除缓存
 		err = h.data.rdb.Del(context.Background(), cacheKey).Err()
 		if err != nil {
 			panic(err)
 		}
+		// 格式化数列表结构
 	} else if err = json.Unmarshal([]byte(list[0].(string)), &list2); err != nil {
 		panic(err)
 	}
+	// 加上互斥锁
 	mx.Lock()
 	for _, v := range list2 {
+		// 列表->JSON
 		data := f(v)
 		by, _ := json.Marshal(data)
+		// save -> db
 		g(data)
+		// save -> rdb
 		_, err := h.data.rdb.HSet(context.Background(), cacheKey, v[0], string(by)).Result()
 		if err != nil {
 			fmt.Println(err)
@@ -220,30 +274,33 @@ func (h heritageRepo) publishMsg(data interface{}, queue string) error {
 	return nil
 }
 
-func (h heritageRepo) createHeritage(strBody, funcName, queryFuncName, key string,
-	f func(v []interface{}) map[string]interface{}, m func()) error {
-	response, err := h.data.c.CommonRequest.ParsePutResult(strBody, funcName)
-	if err != nil {
-		return err
-	}
-	res := h.data.c.CommonRequest.CommonEq(queryFuncName, []interface{}{
-		response,
+func (h heritageRepo) queryHeritageBlockChainRecord(funcName, number string) []interface{} {
+	res := h.data.c.CommonRequest.CommonEq(funcName, []interface{}{
+		number,
 	})
 	if len(res) != 0 {
 		var list []interface{}
-		if err = json.Unmarshal([]byte(res), &list); err != nil {
-			return err
+		if err := json.Unmarshal([]byte(res), &list); err != nil {
+			log.Printf("query Error %v", err)
+			return nil
 		}
-		if len(list) == 0 {
-			return fmt.Errorf(funcName, " error")
-		}
-		data := f(list)
-		by, _ := json.Marshal(data)
-		_, err = h.data.rdb.HSet(context.Background(), key, response, string(by)).Result()
-		go m()
-		if err != nil {
-			return err
-		}
+		return list
+	}
+	return nil
+}
+
+func (h heritageRepo) createHeritage(response interface{}, queryFuncName, key string,
+	f func(v []interface{}) map[string]interface{}, m func()) error {
+	list := h.queryHeritageBlockChainRecord(queryFuncName, response.(string))
+	if len(list) == 0 {
+		return fmt.Errorf("query Errory")
+	}
+	data := f(list)
+	by, _ := json.Marshal(data)
+	_, err := h.data.rdb.HSet(context.Background(), key, response, string(by)).Result()
+	go m()
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -336,7 +393,7 @@ func (h heritageRepo) createHeritageData(data string, raw int) error {
 		Type:       raw,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Locate:     gojsonq.New().FromString(data).Find("locate").(string),
-		Level:      uint8(gojsonq.New().FromString(data).Find("level").(float64)),
+		ApplyLevel: uint8(gojsonq.New().FromString(data).Find("level").(float64)),
 	}
 	err := h.data.db.Table(m.TableName()).Create(&m).Error
 	if err != nil {
@@ -353,6 +410,7 @@ func (h heritageRepo) createHeritageInheritorData(data string) error {
 func (h heritageRepo) createHeritageProjectData(data string) error {
 	return h.createHeritageData(data, model.HeritageTypeProject)
 }
+
 func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) map[string]interface{} {
 	err := h.t.VerifyToken(header)
 	if err != nil {
@@ -364,19 +422,37 @@ func (h heritageRepo) queryPageSizeHeritage(page, size, raw int, header string) 
 		return nil
 	}
 
-	var list []model.Heritage
-	var total int64
+	var (
+		list  []model.Heritage
+		total int64
+		acc   model.Account
+	)
 
 	// 首先计算总记录数
 	query := h.data.db.Table(model.Heritage{}.TableName()).Where("type = ?", raw)
 
+	if err := h.data.db.Model(model.Account{}).Where("city = ?", locate).First(&acc).Error; err != nil {
+		log.Printf("该城市不存在")
+		return nil
+	}
+
+	// 根据申请级别调整查询逻辑
 	if locate == "国家" {
-		query = query.Where("level = ?", model.National)
+		// 国家级用户审核：可以审核申请级别为"国家级"及以上的项目，但这些项目需要已经通过省级审核
+		query = query.Where("apply_level IN (?)", []int{model.National, model.Human}).Where("pass_level = ?", model.Provincial)
 	} else if locate == "人类非物质遗产" {
-		query = query.Where("level = ?", model.Human)
+		// 人类非物质遗产项目审核：只能审核申请级别为"人类非物质遗产"的项目，并且 pass_level 需要为"国家级"
+		query = query.Where("apply_level = ?", model.Human).Where("pass_level = ?", model.National)
+	} else if acc.Level == model.Provincial {
+		// 省级用户审核：可以审核申请级别为"省级"及以上的项目，但这些项目需要已经通过市级审核
+		query = query.Where("apply_level IN (?)", []int{model.Provincial, model.National, model.Human}).Where("pass_level = ?", model.City)
 	} else {
+		// 市级用户只能审核申请级别为"市级"的项目
 		query = query.Where("locate = ?", locate)
 	}
+
+	// Use Debug() to print the generated SQL and see if there are any issues
+	query = query.Debug()
 
 	// 先计算总记录数
 	if err = query.Count(&total).Error; err != nil {

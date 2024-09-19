@@ -5,9 +5,9 @@
 # https://sequel-ace.com/
 # https://github.com/Sequel-Ace/Sequel-Ace
 #
-# 主机: localhost (MySQL 8.3.0)
+# 主机: localhost (MySQL 8.0.39)
 # 数据库: heritage
-# 生成时间: 2024-08-06 09:50:24 +0000
+# 生成时间: 2024-09-19 12:31:07 +0000
 # ************************************************************
 
 
@@ -86,7 +86,9 @@ CREATE TABLE `heritage_task` (
   `type` int DEFAULT NULL COMMENT '类型',
   `create_time` varchar(255) DEFAULT NULL COMMENT '时间',
   `locate` varchar(255) DEFAULT NULL COMMENT '地区',
-  `level` int DEFAULT NULL COMMENT '级别',
+  `apply_level` int DEFAULT NULL COMMENT '申请级别',
+  `pass_level` int DEFAULT NULL COMMENT '审核通过级别',
+  `number` varchar(255) DEFAULT NULL COMMENT '审核通过后的number',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
