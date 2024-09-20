@@ -50,7 +50,7 @@ const login = () => {
 
 <template>
   <LayoutGuest>
-    <SectionFullScreen v-slot="{ cardClass }" bg="purplePink">
+    <SectionFullScreen v-slot="{ cardClass }" bg="pinkRed">
       <CardBox :class="cardClass" is-form @submit.prevent="login()">
         <FormField label="Login" help="Please enter your login">
           <FormControl

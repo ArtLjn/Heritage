@@ -46,7 +46,7 @@ export default {
 <template>
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton :icon="mdiBallotOutline()" title="Heritage Inheritor Message" main>
+      <SectionTitleLineWithButton :icon="mdiBallotOutline()" title="Heritage Project Message" main>
         <BaseButtons>
           <BaseButton
             :icon="mdiKeyboardReturn()"

@@ -23,48 +23,15 @@
 - gin
 - jwt
 
-### 系统截图
+## 一键部署
+1. 直接拉去镜像
+```bash
+docker pull registry.cn-hangzhou.aliyuncs.com/ljn_docker_hub/finish:heritage
+```
+2. 构建容器
+```bash
+docker run -it --name=heritage -p 8080:8080 -p 8081:8081 -p 23306:3306 -p 26379:6379 -p 15672:15672 -d registry.cn-hangzhou.aliyuncs.com/ljn_docker_hub/finish:heritage 
+```
+3. 进入容器自行修改/root/deploy/back/conf/conf.json 合约基础配置
+## 系统截图
 
-[//]: # (<table>)
-
-[//]: # (    <tr>)
-
-[//]: # (        <td><img src="static/WX20240708-141154@2x.png"/></td>)
-
-[//]: # (        <td><img src="static/WX20240708-141236@2x.png"/></td>)
-
-[//]: # (    </tr>)
-
-[//]: # (    <tr>)
-
-[//]: # (        <td><img src="static/WX20240708-141304@2x.png"/></td>)
-
-[//]: # (        <td><img src="static/WX20240708-141324@2x.png"/></td>)
-
-[//]: # (    </tr>)
-
-[//]: # (    <tr>)
-
-[//]: # (        <td><img src="static/WX20240708-141349@2x.png"/></td>)
-
-[//]: # (        <td><img src="static/WX20240708-141401@2x.png"/></td>)
-
-[//]: # (    </tr>)
-
-[//]: # (    <tr>)
-
-[//]: # (        <td><img src="static/WX20240708-141418@2x.png"/></td>)
-
-[//]: # (        <td><img src="static/WX20240708-141502@2x.png"/></td>)
-
-[//]: # (    </tr>)
-
-[//]: # (    <tr>)
-
-[//]: # (        <td><img src="static/WX20240708-141610@2x.png"/></td>)
-
-[//]: # (        <td><img src="static/WX20240708-142017@2x.png"/></td>)
-
-[//]: # (    </tr>)
-
-[//]: # (</table>)
