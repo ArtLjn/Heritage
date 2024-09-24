@@ -1,0 +1,6 @@
+*.go linguist-language=go
+*.sol linguist-language=solidity
+*.vue linguist-language=vue
+*.js linguist-language=javascript
+*.css linguist-language=go
+*.html linguist-language=go
