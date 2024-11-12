@@ -28,18 +28,11 @@
 | 前端服务 | [front](./front)       |
 | 一键部署 | [docker](./docker/) |
 
-## 技术栈
-- mysql
-- redis
-- rabbitmq
-- gin
-- jwt
-- vue3 
-- javascript
-- fisco-bcos
-- solidity
-
 ## 一键部署
+在项目部署之前你需要了解[FISCO-BCOS](https://fisco-bcos-documentation.readthedocs.io/zh-cn/latest/docs/installation.html)
+和[WeBASE-Front](https://webasedoc.readthedocs.io/zh-cn/latest/docs/WeBASE-Install/developer.html)的安装
+并且部署智能合约Heritage拿到部署账户地址和合约地址以便于下面容器创建环境变量的填入，
+具体可以参考官方文档，这里不再赘述。
 1. 直接拉去镜像
 ```bash
 docker pull registry.cn-hangzhou.aliyuncs.com/ljn_docker_hub/finish:heritage
@@ -79,4 +72,8 @@ docker run -it --name=heritage \
 </table>
 
 ### 联系作者
-<img src="static/image.png" style="width: 300px;height: 400px;"/></td>
+<table>
+    <tr>
+        <td><img src="static/image.png" style="width: 300px;height: 400px;"/></td>
+    </tr>
+</table>
