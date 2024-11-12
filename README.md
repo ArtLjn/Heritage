@@ -12,8 +12,13 @@
 区块链技术、非物质文化遗产、智能合约、数字化保护、去中心化、数据可追溯、数字身份、大数据可视化、文化传承、分布式存储
 </p>
 
-- 后端基于 [golang](https://go.dev/) + [gin](https://gin-gonic.com/zh-cn/)
-- 前端基于 [VUE3](https://vuejs.org/)
+- 后端 [golang](https://go.dev/) + [gin](https://gin-gonic.com/zh-cn/)
+- 前端 [VUE3](https://vuejs.org/)
+- 合约 [solidity](https://docs.soliditylang.org/zh/latest/)
+- 部署 [docker](https://www.docker.com/)
+- 区块链 [fisco-bcos](https://fisco-bcos-documentation.readthedocs.io/zh-cn/latest/docs/installation.html) + [webase-front](https://webasedoc.readthedocs.io/zh-cn/latest/docs/WeBASE-Install/developer.html)
+
+
 ## 项目结构 🧐
 
 | 子项目名 | 项目路径                                |
@@ -43,9 +48,16 @@ docker build -t heritage .
 ```
 2. 构建容器
 ```bash
-docker run -it --name=heritage -p 8080:8080 -p 8081:8081 -p 23306:3306 -p 26379:6379 -p 15672:15672 -d registry.cn-hangzhou.aliyuncs.com/ljn_docker_hub/finish:heritage 
+# 注: {{}} 替换为实际内容
+docker run -it --name=heritage \
+-p 8080:8080 -p 8081:8081 -p 23306:3306 -p 26379:6379 \
+-p 15672:15672 -e CONTRACT_ADDRESS={{CONTRACT_ADDRESS}} \
+-e CONTRACT_USER={{CONTRACT_USER}} \
+-e IP={{IP}} \
+-e ADMIN_NAME={{ADMIN_NAME}} \
+-e ADMIN_PASSWORD={{ADMIN_PASSWORD}} \
+-d registry.cn-hangzhou.aliyuncs.com/ljn_docker_hub/finish:heritage 
 ```
-3. 进入容器自行修改/root/deploy/back/conf/conf.json 合约基础配置
 ## 系统截图
 <table>
     <tr>

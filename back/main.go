@@ -44,6 +44,7 @@ func main() {
 
 	go func() {
 		// 服务连接
+		log.Println("Server Running on port: " + c.Server.Port)
 		if err := srv.ListenAndServe(); !(err == nil || errors.Is(err, http.ErrServerClosed)) {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -66,16 +67,17 @@ func main() {
 }
 
 func wireApp(c *conf.Conf, r *gin.Engine) {
-	file, err := ioutil.ReadFile("conf/conf.json")
 	cityFile, err := ioutil.ReadFile("conf/city.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 	var cityJson = make(map[string][]string)
-	if err = json.Unmarshal(file, &c); err != nil {
-		panic(err)
-	} else if err = json.Unmarshal(cityFile, &cityJson); err != nil {
-		panic(err)
+	err = conf.LoadEnvConfig(c, "conf/conf.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = json.Unmarshal(cityFile, &cityJson); err != nil {
+		log.Fatal(err)
 	}
 
 	dataData := data.NewData(c)

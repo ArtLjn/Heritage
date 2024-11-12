@@ -15,7 +15,6 @@ import (
 )
 
 func TestParseConf(t *testing.T) {
-
 	file, err := ioutil.ReadFile("conf.json")
 	if err != nil {
 		return
