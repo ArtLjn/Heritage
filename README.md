@@ -21,6 +21,23 @@
 
 ## 项目结构 🧐
 
+### 功能架构图
+<table>
+    <tr>
+        <td><b>系统架构图</b><img src="static/system.png" style="width: auto;height: auto;"/></td>
+        <td><b>FISCO-BCOS引导图</b><img src="static/img.png" style="width: auto;height: auto;"/></td>
+    </tr>
+    <tr>
+        <td><b>智能合约设计图</b><img src="static/contract.png" style="width: auto;height: auto;"/></td>
+        <td><b>项目部署图</b><img src="static/deploy.png" style="width: auto;height: auto;"/></td>
+    </tr>
+    <tr>
+        <td><b>业务流程图</b><img src="static/sss.png" style="width: auto;height: auto;"/></td>
+    </tr>
+</table>
+
+### 目录结构
+
 | 子项目名 | 项目路径                                |
 |------|-------------------------------------|
 | 后端服务 | [back](./back)         |
